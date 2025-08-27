@@ -1,0 +1,59 @@
+groups:
+  - id: registry.media_content
+    type: attribute_group
+    display_name: Attributes to identify media content
+    brief: Attributes used to describe media content being queried.
+    attributes:
+      - id: media.song
+        type: string
+        brief: The name/title of the song being queried.
+        stability: stable
+        deprecated: 
+          reason: renamed
+          renamed_to: "media.song.name"
+        note: >
+          This attribute is deprecated and will be removed in future versions.
+          Use `media.song.name` for new implementations.
+        examples: ["Smells Like Teen Spirit", "Come As You Are", "Lithium", "Something In The Way"]
+      - id: media.song.name
+        type: string
+        brief: The name/title of the song being queried.
+        stability: stable
+        examples: ["Smells Like Teen Spirit", "Come As You Are", "Lithium", "Something In The Way"]
+      - id: media.artist.name
+        type: string
+        brief: The name of the artist performing the song.
+        stability: stable
+        examples: ["Nirvana", "Foo Fighters", "Linkin Park", "Slipknot"]
+      - id: media.album.name
+        type: string
+        brief: The name of the album containing the song.
+        stability: stable
+        examples: ["Nevermind", "In Utero", "Bleach", "Incesticide"]
+      - id: media.song.year
+        type: int
+        brief: The release year of the song.
+        stability: stable
+        examples: [1991, 1975, 1971, 1976]
+      - id: media.song.duration_ms
+        type: int
+        brief: The duration of the song in milliseconds.
+        stability: stable
+        examples: [301000, 355000, 183000, 391000]
+      - id: media.song.genre
+        type: string
+        brief: The musical genre of the song.
+        stability: stable
+        examples: ["Rock", "Punk", "Grunge", "Classical", "Hip Hop"]
+      - ref: user.id
+
+  - id: registry.otel_sdk
+    type: attribute_group
+    display_name: OTel Resource Attributes
+    brief: Attributes used by the OpenTelemetry SDK.
+    attributes:
+      - ref: service.name
+      - ref: service.version
+      - ref: telemetry.sdk.language
+      - ref: telemetry.sdk.version
+      - ref: telemetry.sdk.name

@@ -1,0 +1,26 @@
+[package]
+name = "demo"
+edition = "2024"
+
+[[bin]]
+name = "demo"
+path = "main.rs"
+
+[dependencies]
+actix-web = "4"
+rustls = "0.23.28"
+tokio-postgres = "0.7"
+tokio = { version = "1.0", features = ["full"] }
+awc = { version = "3.7.0", features = ["rustls"] }
+serde = { version = "1.0.219", features = ["derive"] }
+serde_json = "1.0.140"
+log = "0.4.27"
+urlencoding = "2.1"
+
+opentelemetry-instrumentation-actix-web = { version = "0.22.0", features = ["awc"] }
+opentelemetry = "0.30.0"
+opentelemetry-appender-log = "0.30.0"
+opentelemetry_sdk = "0.30.0"
+opentelemetry-otlp = "0.30.0"
+opentelemetry-resource-detectors = "0.9.0"
+opentelemetry-semantic-conventions = "0.30.0"

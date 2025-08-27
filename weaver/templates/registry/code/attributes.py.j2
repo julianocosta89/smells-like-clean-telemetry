@@ -1,0 +1,17 @@
+{%- import 'macros.j2' as attr_macros -%}
+# DO NOT EDIT, this is an auto-generated file
+
+class {{ params.class_name }}:
+{% for root_ns in ctx %}
+{%- for attr in root_ns.attributes | rejectattr("name", "in", params.excluded_attributes) %}
+
+{# Escape any characters that might cause issues in Python docstrings #}
+{%- if attr.note %}
+    {%- set safe_note = attr.note | trim %}
+{%- else -%}
+    {%- set safe_note = null -%}
+{%- endif %}
+    {{ attr.name | screaming_snake_case }} = "{{ attr.name }}"
+    {{ [attr.brief, concat_if("\n\n    Notes:\n        ", safe_note), attr_macros.examples(attr)] | comment(format="python") }}
+{% endfor %}
+{%- endfor %}

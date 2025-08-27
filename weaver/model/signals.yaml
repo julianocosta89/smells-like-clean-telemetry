@@ -1,0 +1,21 @@
+groups:
+  - id: span.app_location
+    type: span
+    stability: stable
+    brief: This span represents the location being queried.
+    span_kind: server
+    attributes:
+      - ref: media.song.name
+        requirement_level: required
+      - ref: media.artist.name
+        requirement_level: required
+      - ref: media.album.name
+        requirement_level: recommended
+      - ref: media.song.year
+        requirement_level: recommended
+      - ref: media.song.duration_ms
+        requirement_level: opt_in
+      - ref: media.song.genre
+        requirement_level: opt_in
+      - ref: user.id
+        requirement_level: required

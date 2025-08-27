@@ -1,0 +1,186 @@
+networks:
+  default:
+    name: smells-like-clean-telemetry
+    driver: bridge
+
+services:
+  songs-auto:
+    build:
+      context: ./auto
+    ports:
+      - 8080:8080
+    environment:
+      - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=songs-auto
+      - OTEL_RESOURCE_ATTRIBUTES=service.version=0.0.1
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://songs-db:5432/songs_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=password
+      - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
+    profiles:
+      - auto
+    depends_on:
+      - otel-collector
+
+  songs-db:
+    image: postgres:17.5-alpine3.22
+    ports:
+      - 5432
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=songs_db
+    volumes:
+      - ./songs-db/init-songs-db.sh:/docker-entrypoint-initdb.d/init-songs-db.sh
+    profiles:
+      - auto
+      - instrumentation-lib
+      - manual
+      - express-auto
+
+  songs-lib:
+    build:
+      context: ./instrumentation-lib
+    ports:
+      - 8081:8081
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=songs-lib
+      - OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0
+      - DATABASE_URL=postgresql://postgres:password@songs-db:5432/songs_db
+      - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+    profiles:
+      - instrumentation-lib
+  
+  manual-python:
+    build:
+      context: ./manual-python
+    ports:
+      - 5000:5000
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
+      - OTEL_SERVICE_NAME=manual-python
+      - OTEL_RESOURCE_ATTRIBUTES=service.version=0.0.1
+    profiles:
+      - manual-python
+
+  songs-manual:
+    build:
+      context: ./manual
+    ports:
+      - 3000:3000
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=songs-manual
+      - OTEL_RESOURCE_ATTRIBUTES=service.version=0.1.0
+      - DB_HOST=songs-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=songs_db
+      - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+    profiles:
+      - manual
+  
+  express-auto:
+    build:
+      context: ./express-auto
+    ports:
+      - 3000:3000
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+      - OTEL_SERVICE_NAME=express-auto
+      - OTEL_RESOURCE_ATTRIBUTES=service.version=0.1.0
+      - DB_HOST=songs-db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_NAME=songs_db
+      - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+    profiles:
+      - express-auto
+
+  jaeger:
+    image: jaegertracing/all-in-one:1.71.0
+    ports:
+      - 16686:16686
+      - 4317
+      - 4318
+    profiles:
+      - auto
+      - instrumentation-lib
+      - manual
+      - manual-python
+      - express-auto
+      - weaver-emit
+
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.133.0
+    command: 
+      - --config=/etc/otel-collector-config.yaml
+    volumes:
+      - ./otel-collector/otel-collector-config${OBSERVABILITY_BACKEND:+}-${OBSERVABILITY_BACKEND}.yaml:/etc/otel-collector-config.yaml
+    ports:
+      - 4317 # OTLP gRPC
+      - 4318 # OTLP HTTP
+    environment:
+      - OBSERVABILITY_BACKEND
+      - OTEL_COLLECTOR_HOST=otel-collector
+      - OTEL_COLLECTOR_PORT_GRPC=4317
+      - OTEL_COLLECTOR_PORT_HTTP=4318
+      - DD_SITE_PARAMETER
+      - DD_API_KEY
+    profiles:
+      - auto
+      - instrumentation-lib
+      - manual
+      - manual-python
+      - express-auto
+
+  ###########################
+  #  OTel Weaver scenarios  #
+  ###########################
+  weaver:
+    image: otel/weaver:v0.16.1
+    volumes:
+      - ./weaver/model:/home/weaver/model
+    restart: no
+    command:
+      - registry
+      - emit
+      - -r
+      - model
+      - --endpoint
+      - http://jaeger:4317
+    depends_on:
+      - jaeger
+    profiles:
+      - weaver-emit
+  
+  weaver-check:
+    image: otel/weaver:v0.16.1
+    volumes:
+      - ./weaver/model:/home/weaver/model
+    restart: no
+    command:
+      - registry 
+      - live-check
+      - -r
+      - model
+      - --inactivity-timeout
+      - "120"
+    profiles:
+      - weaver-check
+  
+  weaver-check-manual-python:
+    build:
+      context: ./manual-python
+    ports:
+      - 5000:5000
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://weaver-check:4317
+      - OTEL_SERVICE_NAME=manual-python
+      - OTEL_RESOURCE_ATTRIBUTES=service.version=0.0.1
+    profiles:
+      - weaver-check

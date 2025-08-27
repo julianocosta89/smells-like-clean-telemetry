@@ -1,0 +1,24 @@
+{%- import 'macros.j2' as attr_macros -%}
+// DO NOT EDIT, this is an auto-generated file
+
+package {{ params.package_name }};
+
+public final class {{ params.class_name }} {
+
+{%- for root_ns in ctx %}
+    {% for attr in root_ns.attributes | rejectattr("name", "in", params.excluded_attributes) -%}
+        {# Escape any `<...>` tags to avoid Javadoc HTML parsing issues. #}
+
+        {%- if attr.note -%}
+            {%- set safe_note = attr.note | replace('<', '&lt;') | replace('>', '&gt;') | trim -%}
+        {%- else -%}
+            {%- set safe_note = null -%}
+        {%- endif -%}
+        {{ [attr.brief, concat_if("\n\n<h2>Notes</h2>\n\n", safe_note), attr_macros.examples(attr)] | comment }}
+        {% if attr is deprecated %}
+    @Deprecated
+        {% endif %}
+    public static final String {{ attr.name | screaming_snake_case }} = "{{ attr.name }}";
+    {% endfor %}
+{% endfor %}
+}
