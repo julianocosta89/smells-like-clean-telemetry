@@ -137,24 +137,27 @@ cd .. && docker compose --profile weaver-check up
 In another terminal, make a request to generate telemetry:
 
 ```bash
-curl localhost:5000/coordinates/linz/austria
+curl localhost:5000/songs/smells%20like%20teen%20spirit/nirvana
 ```
 
 Check the Docker Compose logs to see the telemetry validation output and any errors:
 
 ![Weaver Live Check Result Example](screenshots/weaver-live-check.png)
 
-In this sample, the app is producing a span with the attribute name `location.city`.
-Weaver complains and raise an error to inform that.
+In this sample, the app is producing a span with the attributes `media.song` and `media.artist`.
+Weaver complains and raise an error to inform that:
+
+- `media.song` is deprecated
+- `media.artist` does not exist in the registry
 
 **What this does**:
 
 - Starts the `weaver-check` profile, which runs Weaver Live Check and a sample service
 - The service listens on port 5000 and is ready to process requests
-- Making the `curl` request triggers the service to emit a span containing a non-compliant attribute
-- Logs show that `location.city - Does not exist in the registry`
+- Making the `curl` request triggers the service to emit a span containing a non-compliant attributes
+- Logs show that `media.artist - Does not exist in the registry` and `media.song - Is deprecated`
 
-**Output**: Console logs showing Weaver Live Check validation results, including error messages for non-compliant attributes (`location.city - Does not exist in the registry`), service startup messages, and real-time validation feedback that can be integrated into CI/CD pipelines to enforce semantic convention compliance.
+**Output**: Console logs showing Weaver Live Check validation results, including error messages for non-compliant attributes (`media.artist - Does not exist in the registry` and `media.song - Is deprecated`), service startup messages, and real-time validation feedback that can be integrated into CI/CD pipelines to enforce semantic convention compliance.
 
 ## Typical Workflow
 

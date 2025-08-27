@@ -29,15 +29,15 @@ Each service provides a REST API for retrieving music data, demonstrating how te
                                 │
                                 ▼
                        ┌──────────────────┐    ┌─────────────────┐
-                       │ OpenTelemetry    │───▶│     Datadog     │
-                       │   Collector      │    │  and/or Jaeger  │
+                       │  OpenTelemetry   │───▶│     Datadog     │
+                       │    Collector     │    │  and/or Jaeger  │
                        └──────────────────┘    └─────────────────┘
 ```
 
 All services expose the same API:
 
-- `GET /coordinates/:city/:country` - Get coordinates for a city/country pair
-- Returns cached data from PostgreSQL or fetches from OpenStreetMap API
+- `GET /songs/:title/:artist` - Get song metadata for a title/artist pair
+- Returns cached data from PostgreSQL or fetches from MusicBrainz API
 
 ## Prerequisites
 
@@ -49,8 +49,8 @@ All services expose the same API:
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
-   cd smells-like-clean-telemetry/src
+   git clone git@github.com:julianocosta89/smells-like-clean-telemetry.git
+   cd smells-like-clean-telemetry
    ```
 
 2. **Configure the observability backend**
@@ -221,7 +221,7 @@ For detailed Weaver usage instructions, see the [Weaver Guide](weaver/README.md)
 
 - Wait for PostgreSQL to fully initialize (check logs)
 - Verify database credentials in environment variables
-- Ensure `coordinates-db` service is running
+- Ensure `songs-db` service is running
 
 ## Contributing
 
