@@ -16,7 +16,7 @@ OpenTelemetry Weaver is a code generation and documentation tool that:
 First, pull the Weaver Docker image:
 
 ```bash
-docker pull otel/weaver:v0.16.1
+docker pull otel/weaver:v0.17.1
 ```
 
 ## Directory Structure
@@ -38,7 +38,7 @@ This project expects the following directory structure:
 docker run --rm \
     --mount 'type=bind,source=./templates,target=/home/weaver/templates' \
     --mount 'type=bind,source=./model,target=/home/weaver/model' \
-    otel/weaver:v0.16.1 \
+    otel/weaver:v0.17.1 \
     registry resolve \
     -r model
 ```
@@ -60,10 +60,10 @@ docker run --rm \
 docker run --rm \
     --mount 'type=bind,source=./model,target=/home/weaver/model' \
     --mount 'type=bind,source=./docs,target=/home/weaver/docs' \
-    otel/weaver:v0.16.1 \
+    otel/weaver:v0.17.1 \
     registry generate \
     -r model \
-    --templates "https://github.com/open-telemetry/semantic-conventions/archive/refs/tags/v1.34.0.zip[templates]" \
+    --templates "https://github.com/open-telemetry/semantic-conventions/archive/refs/tags/v1.37.0.zip[templates]" \
     markdown docs
 ```
 
@@ -85,7 +85,7 @@ docker run --rm \
     --mount 'type=bind,source=./templates,target=/home/weaver/templates' \
     --mount 'type=bind,source=./model,target=/home/weaver/model' \
     --mount 'type=bind,source=./src,target=/home/weaver/src' \
-    otel/weaver:v0.16.1 \
+    otel/weaver:v0.17.1 \
     registry generate \
     -c templates/registry/code/weaver.yaml \
     -r model \

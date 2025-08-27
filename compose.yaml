@@ -142,7 +142,7 @@ services:
   #  OTel Weaver scenarios  #
   ###########################
   weaver:
-    image: otel/weaver:v0.16.1
+    image: otel/weaver:v0.17.1
     volumes:
       - ./weaver/model:/home/weaver/model
     restart: no
@@ -159,7 +159,7 @@ services:
       - weaver-emit
   
   weaver-check:
-    image: otel/weaver:v0.16.1
+    image: otel/weaver:v0.17.1
     volumes:
       - ./weaver/model:/home/weaver/model
     restart: no

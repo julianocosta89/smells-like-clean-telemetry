@@ -29,18 +29,6 @@ public final class Attributes {
 
     /**
      * <p>The name/title of the song being queried.</p>
-     * <h2>Examples</h2>
-     * <ul>
-     *   <li><c>"Smells Like Teen Spirit"</c></li>
-     *   <li><c>"Come As You Are"</c></li>
-     *   <li><c>"Lithium"</c></li>
-     *   <li><c>"Something In The Way"</c></li>
-     * </ul>
-     */
-    public static final String MEDIA_SONG_NAME = "media.song.name";
-
-    /**
-     * <p>The name/title of the song being queried.</p>
      * <h2>Notes</h2><p>This attribute is deprecated and will be removed in future versions. Use <c>media.song.name</c> for new implementations.</p>
      * <h2>Examples</h2>
      * <ul>
@@ -77,6 +65,18 @@ public final class Attributes {
      * </ul>
      */
     public static final String MEDIA_SONG_GENRE = "media.song.genre";
+
+    /**
+     * <p>The name/title of the song being queried.</p>
+     * <h2>Examples</h2>
+     * <ul>
+     *   <li><c>"Smells Like Teen Spirit"</c></li>
+     *   <li><c>"Come As You Are"</c></li>
+     *   <li><c>"Lithium"</c></li>
+     *   <li><c>"Something In The Way"</c></li>
+     * </ul>
+     */
+    public static final String MEDIA_SONG_NAME = "media.song.name";
 
     /**
      * <p>The release year of the song.</p>

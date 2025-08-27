@@ -57,3 +57,7 @@ groups:
       - ref: telemetry.sdk.language
       - ref: telemetry.sdk.version
       - ref: telemetry.sdk.name
+
+imports:
+  entities:
+    - container.*
