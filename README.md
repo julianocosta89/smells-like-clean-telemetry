@@ -171,7 +171,6 @@ This repository includes examples using OpenTelemetry Weaver for code generation
 
 - **Code Generation** - Generates constants and types for multiple programming languages (Java, Python, Rust)
 - **Documentation Generation** - Creates markdown documentation from semantic convention schemas
-- **Schema Validation** - Validates YAML schema definitions for correctness
 - **Live Validation** - Real-time validation of telemetry against defined semantic conventions
 
 ### Weaver Profiles
