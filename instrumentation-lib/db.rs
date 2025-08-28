@@ -165,7 +165,7 @@ async fn get_song_from_musicbrainz(
     );
     let encoded_query = urlencoding::encode(&query);
     let url = format!(
-        "{}?query={}&fmt=json&limit=10",
+        "{}?query={}&fmt=json&limit=20",
         music_service_url, encoded_query
     );
 
@@ -230,12 +230,19 @@ async fn get_song_from_musicbrainz(
         }
     }
 
-    // Extract genre from tags
+    // Extract genre from tags - search all recordings if needed
     let genre = recording
         .tags
         .as_ref()
         .and_then(|tags| tags.first())
         .map(|tag| tag.name.clone())
+        .or_else(|| {
+            // Look through all recordings for tags
+            musicbrainz_response.recordings
+                .iter()
+                .find_map(|r| r.tags.as_ref()?.first())
+                .map(|tag| tag.name.clone())
+        })
         .unwrap_or_else(|| "Unknown".to_string());
 
     let duration_ms = recording.length.map(|l| l as i32);

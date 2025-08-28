@@ -95,7 +95,7 @@ app.get('/songs/:title/:artist', async (req, res) => {
 
 async function getSongFromMusicBrainz(title, artist) {
   try {
-    const url = `https://musicbrainz.org/ws/2/recording/?query=recording:"${title}" AND artist:"${artist}"&fmt=json&limit=10`
+    const url = `https://musicbrainz.org/ws/2/recording/?query=recording:"${title}" AND artist:"${artist}"&fmt=json&limit=20`
     const response = await fetch(url, {
       headers: { 'User-Agent': 'otel-demo/1.0' }
     })
@@ -153,10 +153,18 @@ async function getSongFromMusicBrainz(title, artist) {
     
     const targetRelease = bestRelease || (releases.length > 0 ? releases[0] : null)
     
-    // Try to get genre from tags
+    // Try to get genre from tags - search all recordings if needed
     let genre = 'Unknown'
     if (bestRecording.tags && bestRecording.tags.length > 0) {
       genre = bestRecording.tags[0].name
+    } else {
+      // Look through all recordings for tags
+      for (const recording of data.recordings) {
+        if (recording.tags && recording.tags.length > 0) {
+          genre = recording.tags[0].name
+          break
+        }
+      }
     }
     
     return {

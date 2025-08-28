@@ -150,14 +150,14 @@ app.get('/songs/:title/:artist', async (req, res) => {
 async function getSongFromMusicBrainz(title, artist, parentSpan) {
   const musicServiceUrl = process.env.MUSIC_SERVICE_URL || 'https://musicbrainz.org/ws/2/recording'
   const query = encodeURIComponent(`recording:"${title}" AND artist:"${artist}"`)
-  const url = `${musicServiceUrl}?query=${query}&fmt=json&limit=10`
+  const url = `${musicServiceUrl}?query=${query}&fmt=json&limit=20`
   
   const span = tracer.startSpan('GET', {
       kind: 2, // client
       attributes: {
         [ATTR_HTTP_REQUEST_METHOD]: HTTP_REQUEST_METHOD_VALUE_GET,
         [ATTR_URL_FULL]: url,
-        [ATTR_URL_PATH]: `/?query=${query}&fmt=json&limit=10`,
+        [ATTR_URL_PATH]: `/?query=${query}&fmt=json&limit=20`,
         [ATTR_URL_SCHEME]: 'https',
       },
     }, opentelemetry.trace.setSpan(opentelemetry.context.active(), parentSpan))
@@ -225,10 +225,18 @@ async function getSongFromMusicBrainz(title, artist, parentSpan) {
     
     const targetRelease = bestRelease || (releases.length > 0 ? releases[0] : null)
     
-    // Try to get genre from tags
+    // Try to get genre from tags - search all recordings if needed
     let genre = 'Unknown'
     if (bestRecording.tags && bestRecording.tags.length > 0) {
       genre = bestRecording.tags[0].name
+    } else {
+      // Look through all recordings for tags
+      for (const recording of data.recordings) {
+        if (recording.tags && recording.tags.length > 0) {
+          genre = recording.tags[0].name
+          break
+        }
+      }
     }
     
     return {

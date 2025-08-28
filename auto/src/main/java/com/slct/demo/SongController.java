@@ -37,7 +37,7 @@ public class SongController {
                                song.getTitle(), song.getArtist(), song.getAlbum(), song.getYear(), song.getDurationMs(), song.getGenre());
         } else {
             try {
-                String url = String.format("%s?query=recording:\"%s\" AND artist:\"%s\"&fmt=json&limit=1", 
+                String url = String.format("%s?query=recording:\"%s\" AND artist:\"%s\"&fmt=json&limit=20", 
                     musicServiceUrl, title, artist);
                 HttpHeaders headers = new HttpHeaders();
                 headers.set("User-Agent", "otel-demo/1.0");
@@ -158,20 +158,23 @@ public class SongController {
                             if (targetRelease.has("date")) {
                                 String date = targetRelease.get("date").asText();
                                 year = extractYear(date);
-                                logger.info("Selected release: '{}', date: '{}', extracted year: {}", 
-                                          targetRelease.has("title") ? targetRelease.get("title").asText() : "No title", 
-                                          date, year);
-                            } else {
-                                logger.info("Selected release has no date: '{}'", 
-                                          targetRelease.has("title") ? targetRelease.get("title").asText() : "No title");
                             }
                         }
                         
-                        // Try to get genre from tags
+                        // Try to get genre from tags - search all recordings if needed
                         String genre = "Unknown";
                         JsonNode tags = selectedRecording.get("tags");
                         if (tags != null && tags.isArray() && tags.size() > 0) {
                             genre = tags.get(0).get("name").asText();
+                        } else {
+                            // Look through all recordings for tags
+                            for (JsonNode recording : recordings) {
+                                JsonNode recordingTags = recording.get("tags");
+                                if (recordingTags != null && recordingTags.isArray() && recordingTags.size() > 0) {
+                                    genre = recordingTags.get(0).get("name").asText();
+                                    break;
+                                }
+                            }
                         }
                         
                         // Save to database
@@ -180,21 +183,15 @@ public class SongController {
                         return String.format("{\"title\":\"%s\",\"artist\":\"%s\",\"album\":\"%s\",\"year\":%s,\"duration_ms\":%s,\"genre\":\"%s\"}", 
                                            savedSong.getTitle(), savedSong.getArtist(), savedSong.getAlbum(), savedSong.getYear(), savedSong.getDurationMs(), savedSong.getGenre());
                     } else {
-                        // If no results from MusicBrainz, save with default values
-                        Song savedSong = songService.saveSong(title, artist, "Unknown", null, null, "Unknown");
-                        logger.info("Saved song with default values: {}", savedSong);
-                        
-                        return String.format("{\"title\":\"%s\",\"artist\":\"%s\",\"album\":\"Unknown\",\"year\":null,\"duration_ms\":null,\"genre\":\"Unknown\"}", 
+                        return String.format("{\"message\":\"Song not found for title: %s, artist: %s\"}", 
                                            title, artist);
                     }
                 } catch (Exception e) {
-                    logger.error("Error parsing or saving song: {}", e.getMessage(), e);
                     // Return basic song info even if saving fails
                     return String.format("{\"title\":\"%s\",\"artist\":\"%s\",\"album\":\"Unknown\",\"year\":null,\"duration_ms\":null,\"genre\":\"Unknown\"}", 
                                        title, artist);
                 }
             } catch (Exception e) {
-                logger.error("Error getting song from external service: {}", e.getMessage(), e);
                 return String.format("{\"error\":\"Song not found for title: %s, artist: %s, external service error: %s\"}", 
                                    title, artist, e.getMessage());
             }
