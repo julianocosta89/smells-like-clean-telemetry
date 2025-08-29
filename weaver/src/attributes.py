@@ -99,3 +99,15 @@ class Attributes:
 
     - `"S-1-5-21-202424912787-2692429404-2351956786-1000"`
     """
+
+    USER_SUBSCRIPTION_TYPE = "user.subscription.type"
+    """
+    The type of subscription the user has.
+
+    ## Examples
+
+    - `"Free"`
+    - `"Premium"`
+    - `"Family"`
+    - `"Student"`
+    """

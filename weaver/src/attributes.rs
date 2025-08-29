@@ -82,4 +82,14 @@ pub const MEDIA_SONG_YEAR: &str = "media.song.year";
 /// ## Examples
 ///
 /// - `"S-1-5-21-202424912787-2692429404-2351956786-1000"`
-pub const USER_ID: &str = "user.id";    
+pub const USER_ID: &str = "user.id";
+
+/// The type of subscription the user has.
+///
+/// ## Examples
+///
+/// - `"Free"`
+/// - `"Premium"`
+/// - `"Family"`
+/// - `"Student"`
+pub const USER_SUBSCRIPTION_TYPE: &str = "user.subscription.type";    

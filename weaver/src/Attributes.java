@@ -98,4 +98,16 @@ public final class Attributes {
      * </ul>
      */
     public static final String USER_ID = "user.id";
+
+    /**
+     * <p>The type of subscription the user has.</p>
+     * <h2>Examples</h2>
+     * <ul>
+     *   <li><c>"Free"</c></li>
+     *   <li><c>"Premium"</c></li>
+     *   <li><c>"Family"</c></li>
+     *   <li><c>"Student"</c></li>
+     * </ul>
+     */
+    public static final String USER_SUBSCRIPTION_TYPE = "user.subscription.type";
 }

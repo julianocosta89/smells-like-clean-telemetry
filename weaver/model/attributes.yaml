@@ -45,6 +45,11 @@ groups:
         brief: The musical genre of the song.
         stability: stable
         examples: ["Rock", "Punk", "Grunge", "Classical", "Hip Hop"]
+      - id: user.subscription.type
+        type: string
+        brief: The type of subscription the user has.
+        stability: stable
+        examples: ["Free", "Premium", "Family", "Student"]
       - ref: user.id
 
   - id: registry.otel_sdk

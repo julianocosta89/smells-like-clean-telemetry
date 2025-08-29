@@ -17,5 +17,6 @@ Attributes used to describe media content being queried.
 | <a id="media-song-name" href="#media-song-name">`media.song.name`</a> | string | The name/title of the song being queried. | `Smells Like Teen Spirit`; `Come As You Are`; `Lithium`; `Something In The Way` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
 | <a id="media-song-year" href="#media-song-year">`media.song.year`</a> | int | The release year of the song. | `1991`; `1975`; `1971`; `1976` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
 | <a id="user-id" href="#user-id">`user.id`</a> | string | Unique identifier of the user. | `S-1-5-21-202424912787-2692429404-2351956786-1000` | ![Development](https://img.shields.io/badge/-development-blue) |
+| <a id="user-subscription-type" href="#user-subscription-type">`user.subscription.type`</a> | string | The type of subscription the user has. | `Free`; `Premium`; `Family`; `Student` | ![Stable](https://img.shields.io/badge/-stable-lightgreen) |
 
 **[1] `media.song`:** This attribute is deprecated and will be removed in future versions. Use `media.song.name` for new implementations.
