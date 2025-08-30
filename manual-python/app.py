@@ -44,7 +44,7 @@ def get_songs(title, artist):
 
     # Application logic to retrieve song metadata
     # [...]
-    logging.info("Important audit log that needs to be created")
+    logging.info("Important audit log that must be created")
 
     #logging.info("Song retrieved for title: %s, artist: %s", title, artist)
     return {
