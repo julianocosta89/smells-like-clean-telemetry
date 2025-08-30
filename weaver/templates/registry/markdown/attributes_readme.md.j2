@@ -23,5 +23,7 @@ All registered attributes are listed by namespace in this registry.
 
 Currently, the following namespaces exist:
 
-- [Media Content](media-content.md)
-- [Otel Sdk](otel-sdk.md)
+{% for bundle in ctx %}
+{%- set my_file_name = bundle.id | kebab_case ~ ".md" -%}
+- [{{ bundle.id | title_case | acronym }}]({{ my_file_name }})
+{% endfor %}

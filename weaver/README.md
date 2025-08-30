@@ -36,8 +36,8 @@ This project expects the following directory structure:
 
 ```bash
 docker run --rm \
-    --mount 'type=bind,source=./templates,target=/home/weaver/templates' \
-    --mount 'type=bind,source=./model,target=/home/weaver/model' \
+    --mount 'type=bind,source=./templates,target=/home/weaver/templates,readonly' \
+    --mount 'type=bind,source=./model,target=/home/weaver/model,readonly' \
     otel/weaver:v0.17.1 \
     registry resolve \
     -r model
@@ -58,13 +58,17 @@ docker run --rm \
 
 ```bash
 docker run --rm \
-    --mount 'type=bind,source=./model,target=/home/weaver/model' \
-    --mount 'type=bind,source=./docs,target=/home/weaver/docs' \
+    --mount 'type=bind,source=./templates,target=/home/weaver/templates,readonly' \
+    --mount 'type=bind,source=./model,target=/home/weaver/source,readonly' \
+    --mount 'type=bind,source=./docs,target=/home/weaver/target' \
     otel/weaver:v0.17.1 \
     registry generate \
-    -r model \
-    --templates "https://github.com/open-telemetry/semantic-conventions/archive/refs/tags/v1.37.0.zip[templates]" \
-    markdown docs
+    --registry=/home/weaver/source \
+    -Dregistry_base_url=/docs/registry/ \
+    --templates=/home/weaver/templates \
+    markdown \
+    --future \
+    /home/weaver/target/registry/
 ```
 
 **What this does**:
@@ -82,8 +86,8 @@ docker run --rm \
 
 ```bash
 docker run --rm \
-    --mount 'type=bind,source=./templates,target=/home/weaver/templates' \
-    --mount 'type=bind,source=./model,target=/home/weaver/model' \
+    --mount 'type=bind,source=./templates,target=/home/weaver/templates,readonly' \
+    --mount 'type=bind,source=./model,target=/home/weaver/model,readonly' \
     --mount 'type=bind,source=./src,target=/home/weaver/src' \
     otel/weaver:v0.17.1 \
     registry generate \
