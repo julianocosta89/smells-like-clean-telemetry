@@ -206,15 +206,15 @@ async fn get_song_from_musicbrainz(
     if let Some(releases) = &recording.releases {
         let mut best_release = None;
         let mut oldest_year = None;
-        
+
         // Find the release with the oldest year (any year is better than null)
         for release in releases {
             if let Some(date) = &release.date {
                 let release_year = extract_year(date);
-                
+
                 if let Some(year_val) = release_year {
                     let should_update = oldest_year.is_none() || year_val < oldest_year.unwrap();
-                    
+
                     if should_update {
                         oldest_year = Some(year_val);
                         best_release = Some(release);
@@ -238,7 +238,8 @@ async fn get_song_from_musicbrainz(
         .map(|tag| tag.name.clone())
         .or_else(|| {
             // Look through all recordings for tags
-            musicbrainz_response.recordings
+            musicbrainz_response
+                .recordings
                 .iter()
                 .find_map(|r| r.tags.as_ref()?.first())
                 .map(|tag| tag.name.clone())
