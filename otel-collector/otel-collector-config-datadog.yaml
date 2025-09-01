@@ -1,3 +1,23 @@
+extensions:
+  healthcheckv2:
+    use_v2: true
+    component_health:
+      include_permanent_errors: false
+      include_recoverable_errors: true
+      recovery_duration: 5m
+    http:
+      endpoint: "localhost:13133"
+      status:
+        enabled: true
+        path: "/health/status"
+  datadog/extension:
+    api:
+      site: ${DD_SITE_PARAMETER}
+      key: ${DD_API_KEY}
+    http:
+      endpoint: "localhost:9875"
+      path: "/metadata"
+
 receivers:
   otlp:
     protocols:
@@ -14,6 +34,7 @@ processors:
       span:
         - IsMatch(instrumentation_scope.name, "@opentelemetry/instrumentation-net")
         - IsMatch(instrumentation_scope.name, "@opentelemetry/instrumentation-dns")
+        # - IsMatch(instrumentation_scope.name, "@opentelemetry/instrumentation-express")
   resource:
     attributes:
       - key: deployment.environment.name
@@ -41,6 +62,7 @@ exporters:
 
 
 service:
+  extensions: [healthcheckv2, datadog/extension]
   pipelines:
     traces:
       receivers: [otlp]

@@ -18,10 +18,11 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=password
       - SPRING_DATASOURCE_DRIVER-CLASS-NAME=org.postgresql.Driver
+    depends_on:
+      otel-collector:
+        condition: service_healthy
     profiles:
       - auto
-    depends_on:
-      - otel-collector
 
   songs-db:
     image: postgres:17.5-alpine3.22
@@ -50,6 +51,9 @@ services:
       - OTEL_RESOURCE_ATTRIBUTES=service.version=1.0.0
       - DATABASE_URL=postgresql://postgres:password@songs-db:5432/songs_db
       - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+    depends_on:
+      otel-collector:
+        condition: service_healthy
     profiles:
       - instrumentation-lib
   
@@ -62,6 +66,9 @@ services:
       - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4317
       - OTEL_SERVICE_NAME=manual-python
       - OTEL_RESOURCE_ATTRIBUTES=service.version=0.0.1
+    depends_on:
+      otel-collector:
+        condition: service_healthy
     profiles:
       - manual-python
 
@@ -80,6 +87,9 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=songs_db
       - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+    depends_on:
+      otel-collector:
+        condition: service_healthy
     profiles:
       - manual
   
@@ -98,6 +108,9 @@ services:
       - DB_PASSWORD=password
       - DB_NAME=songs_db
       - MUSIC_SERVICE_URL=https://musicbrainz.org/ws/2/recording/
+    depends_on:
+      otel-collector:
+        condition: service_healthy
     profiles:
       - express-auto
 
@@ -116,7 +129,8 @@ services:
       - weaver-emit
 
   otel-collector:
-    image: otel/opentelemetry-collector-contrib:0.133.0
+    build:
+      context: ./otel-collector
     command: 
       - --config=/etc/otel-collector-config.yaml
     volumes:
@@ -124,6 +138,7 @@ services:
     ports:
       - 4317 # OTLP gRPC
       - 4318 # OTLP HTTP
+      - 13133 # Health check HTTP
     environment:
       - OBSERVABILITY_BACKEND
       - OTEL_COLLECTOR_HOST=otel-collector
@@ -131,6 +146,12 @@ services:
       - OTEL_COLLECTOR_PORT_HTTP=4318
       - DD_SITE_PARAMETER
       - DD_API_KEY
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:13133/health/status"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
     profiles:
       - auto
       - instrumentation-lib
