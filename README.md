@@ -1,6 +1,18 @@
 # Smells Like Clean Telemetry
 
-This repository contains practical examples demonstrating different OpenTelemetry instrumentation approaches across multiple programming languages. The code was used during the talk "Smells Like Clean Telemetry" and showcases clean telemetry practices for modern applications.
+<p align="left">
+  <a href="images/otelio.svg"><img src="images/otelio.svg" alt="Otelio" width="150" align="left" style="margin-right: 20px;"></a>
+</p>
+
+### Smells Like Clean Telemetry
+
+<i>Stop the Noise, Create Better Spans</i>
+
+&nbsp;
+
+&nbsp;
+
+This repository contains the examples used in the talk.
 
 Feel free to use, share, and send improvements/fixes/suggestions.
 
