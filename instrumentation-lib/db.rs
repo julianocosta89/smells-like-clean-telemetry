@@ -256,13 +256,13 @@ async fn get_song_from_db(title: &str, artist: &str) -> Result<Vec<Row>, String>
     let parent_cx = Context::current();
 
     let mut span = tracer
-        .span_builder("SELECT song")
+        .span_builder("SELECT songs_db.songs")
         .with_kind(SpanKind::Client)
         .with_attributes(vec![
             opentelemetry::KeyValue::new(DB_SYSTEM_NAME, "postgresql"),
             opentelemetry::KeyValue::new(
                 DB_QUERY_TEXT,
-                "SELECT * FROM songs WHERE title ILIKE $1 AND artist ILIKE $2",
+                "SELECT title, artist, album, year, duration_ms, genre FROM songs WHERE title ILIKE $1 AND artist ILIKE $2",
             ),
             opentelemetry::KeyValue::new(DB_OPERATION_NAME, "SELECT"),
         ])
@@ -282,7 +282,7 @@ async fn get_song_from_db(title: &str, artist: &str) -> Result<Vec<Row>, String>
 
     let result = client
         .query(
-            "SELECT * FROM songs WHERE title ILIKE $1 AND artist ILIKE $2",
+            "SELECT title, artist, album, year, duration_ms, genre FROM songs WHERE title ILIKE $1 AND artist ILIKE $2",
             &[&title, &artist],
         )
         .await;
@@ -317,7 +317,7 @@ async fn insert_song(
     let tracer = opentelemetry::global::tracer("music_service");
     let parent_cx = Context::current();
 
-    let mut span = tracer.span_builder("INSERT song")
+    let mut span = tracer.span_builder("INSERT songs_db.songs")
         .with_kind(SpanKind::Client)
         .with_attributes(vec![
             opentelemetry::KeyValue::new(DB_SYSTEM_NAME, "postgresql"),
