@@ -85,7 +85,8 @@
     }
   ],
   "ocb": {
-    "enabled": true
+    "enabled": true,
+    "managerFilePatterns": ["otel-collector/ocb-manifest.yaml"]
   },
   "npm": {
     "enabled": true
