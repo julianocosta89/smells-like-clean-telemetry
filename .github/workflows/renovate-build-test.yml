@@ -5,6 +5,10 @@ on:
     types: [opened, synchronize, reopened]
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   check-renovate:
     name: Check if PR is from Renovate
