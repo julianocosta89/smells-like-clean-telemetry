@@ -39,7 +39,7 @@ jobs:
       otel-collector: ${{ steps.changes.outputs.otel-collector }}
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -68,7 +68,7 @@ jobs:
     if: needs.check-renovate.outputs.is-renovate == 'true' && needs.detect-changes.outputs.auto == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -89,7 +89,7 @@ jobs:
     if: needs.check-renovate.outputs.is-renovate == 'true' && needs.detect-changes.outputs.manual == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -110,7 +110,7 @@ jobs:
     if: needs.check-renovate.outputs.is-renovate == 'true' && needs.detect-changes.outputs.express-auto == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -131,7 +131,7 @@ jobs:
     if: needs.check-renovate.outputs.is-renovate == 'true' && needs.detect-changes.outputs.instrumentation-lib == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -152,7 +152,7 @@ jobs:
     if: needs.check-renovate.outputs.is-renovate == 'true' && needs.detect-changes.outputs.manual-python == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -173,7 +173,7 @@ jobs:
     if: needs.check-renovate.outputs.is-renovate == 'true' && needs.detect-changes.outputs.otel-collector == 'true'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
