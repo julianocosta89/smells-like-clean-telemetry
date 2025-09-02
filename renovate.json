@@ -81,10 +81,6 @@
       "matchDatasources": [
         "ocb"
       ],
-      "matchPackagePatterns": [
-        "^go.opentelemetry.io/collector/",
-        "^github.com/open-telemetry/opentelemetry-collector-contrib/"
-      ],
       "groupName": "OpenTelemetry Collector Builder"
     }
   ],
@@ -102,7 +98,7 @@
   "gradle": {
     "enabled": true
   },
-  "dependencyDashboard": true,
+  "dependencyDashboard": false,
   "platformAutomerge": false,
   "prHourlyLimit": 5,
   "prConcurrentLimit": 10,
