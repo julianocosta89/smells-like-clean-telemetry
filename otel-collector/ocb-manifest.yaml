@@ -6,7 +6,7 @@ dist:
   output_path: ./_build
 
 extensions:
-    - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckv2extension v0.133.0
+    - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/healthcheckv2extension v0.134.0
     - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/extension/datadogextension v0.134.0
 
 receivers:
