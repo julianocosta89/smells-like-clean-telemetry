@@ -168,8 +168,7 @@ jobs:
               manual: '${{ needs.test-manual-service.result }}',
               'express-auto': '${{ needs.test-express-auto-service.result }}',
               'instrumentation-lib': '${{ needs.test-instrumentation-lib-service.result }}',
-              'manual-python': '${{ needs.test-manual-python-service.result }}',
-              'otel-collector': '${{ needs.test-otel-collector.result }}'
+              'manual-python': '${{ needs.test-manual-python-service.result }}'
             };
             
             // Only trigger integration tests for services that built successfully
