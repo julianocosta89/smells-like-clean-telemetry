@@ -37,13 +37,49 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
   actions: write
 
 jobs:
+  detect-changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    outputs:
+      auto: ${{ steps.changes.outputs.auto }}
+      manual: ${{ steps.changes.outputs.manual }}
+      express-auto: ${{ steps.changes.outputs.express-auto }}
+      instrumentation-lib: ${{ steps.changes.outputs.instrumentation-lib }}
+      manual-python: ${{ steps.changes.outputs.manual-python }}
+      otel-collector: ${{ steps.changes.outputs.otel-collector }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            auto:
+              - 'auto/**'
+            manual:
+              - 'manual/**'
+            express-auto:
+              - 'express-auto/**'
+            instrumentation-lib:
+              - 'instrumentation-lib/**'
+            manual-python:
+              - 'manual-python/**'
+            otel-collector:
+              - 'otel-collector/**'
   test-auto-service:
     name: Test Auto Service Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.auto == 'true'
+    needs: [detect-changes]
+    if: (github.event_name == 'workflow_dispatch' && inputs.auto == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.auto == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -63,7 +99,8 @@ jobs:
   test-manual-service:
     name: Test Manual Service Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.manual == 'true'
+    needs: [detect-changes]
+    if: (github.event_name == 'workflow_dispatch' && inputs.manual == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.manual == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -83,7 +120,8 @@ jobs:
   test-express-auto-service:
     name: Test Express Auto Service Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.express-auto == 'true'
+    needs: [detect-changes]
+    if: (github.event_name == 'workflow_dispatch' && inputs.express-auto == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.express-auto == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -103,7 +141,8 @@ jobs:
   test-instrumentation-lib-service:
     name: Test Instrumentation Lib Service Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.instrumentation-lib == 'true'
+    needs: [detect-changes]
+    if: (github.event_name == 'workflow_dispatch' && inputs.instrumentation-lib == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.instrumentation-lib == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -123,7 +162,8 @@ jobs:
   test-manual-python-service:
     name: Test Manual Python Service Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.manual-python == 'true'
+    needs: [detect-changes]
+    if: (github.event_name == 'workflow_dispatch' && inputs.manual-python == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.manual-python == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -143,7 +183,8 @@ jobs:
   test-otel-collector:
     name: Test OpenTelemetry Collector Build
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && inputs.otel-collector == 'true'
+    needs: [detect-changes]
+    if: (github.event_name == 'workflow_dispatch' && inputs.otel-collector == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.otel-collector == 'true')
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -160,34 +201,397 @@ jobs:
           OTEL_SERVICE_NAME: otel-collector-test
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
-  trigger-integration-tests:
-    name: Trigger Integration Tests
+  integration-test-auto:
+    name: Integration Test Auto Service
     runs-on: ubuntu-latest
-    needs: [test-auto-service, test-manual-service, test-express-auto-service, test-instrumentation-lib-service, test-manual-python-service, test-otel-collector]
-    if: always() && (needs.test-auto-service.result == 'success' || needs.test-manual-service.result == 'success' || needs.test-express-auto-service.result == 'success' || needs.test-instrumentation-lib-service.result == 'success' || needs.test-manual-python-service.result == 'success')
+    needs: [detect-changes, test-auto-service]
+    if: (github.event_name == 'workflow_dispatch' && inputs.auto == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.auto == 'true' && needs.test-auto-service.result == 'success')
     steps:
-      - name: Trigger integration test workflow
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const buildResults = {
-              auto: '${{ needs.test-auto-service.result }}',
-              manual: '${{ needs.test-manual-service.result }}',
-              'express-auto': '${{ needs.test-express-auto-service.result }}',
-              'instrumentation-lib': '${{ needs.test-instrumentation-lib-service.result }}',
-              'manual-python': '${{ needs.test-manual-python-service.result }}'
-            };
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile auto up -d
+          
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
             
-            // Only trigger integration tests for services that built successfully
-            const integrationInputs = {};
-            for (const [service, result] of Object.entries(buildResults)) {
-              integrationInputs[service] = result === 'success' ? 'true' : 'false';
-            }
+            # Check if all required services are running and healthy
+            AUTO_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-auto")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
             
-            await github.rest.actions.createWorkflowDispatch({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              workflow_id: 'integration-test.yml',
-              ref: '${{ inputs.target-ref }}',
-              inputs: integrationInputs
-            });
+            echo "Service status: Auto=$AUTO_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$AUTO_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:8080/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-auto&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+          OTEL_SERVICE_NAME: songs-auto
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile auto down -v
+
+  integration-test-manual:
+    name: Integration Test Manual Service
+    runs-on: ubuntu-latest
+    needs: [detect-changes, test-manual-service]
+    if: (github.event_name == 'workflow_dispatch' && inputs.manual == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.manual == 'true' && needs.test-manual-service.result == 'success')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile manual up -d
+          
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            MANUAL_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-manual")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Manual=$MANUAL_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$MANUAL_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:3000/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-manual&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+          OTEL_SERVICE_NAME: songs-manual
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile manual down -v
+
+  integration-test-express-auto:
+    name: Integration Test Express Auto Service
+    runs-on: ubuntu-latest
+    needs: [detect-changes, test-express-auto-service]
+    if: (github.event_name == 'workflow_dispatch' && inputs.express-auto == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.express-auto == 'true' && needs.test-express-auto-service.result == 'success')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile express-auto up -d
+          
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            EXPRESS_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("express-auto")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Express=$EXPRESS_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$EXPRESS_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:3000/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=express-auto&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+          OTEL_SERVICE_NAME: express-auto
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile express-auto down -v
+
+  integration-test-instrumentation-lib:
+    name: Integration Test Instrumentation Lib Service
+    runs-on: ubuntu-latest
+    needs: [detect-changes, test-instrumentation-lib-service]
+    if: (github.event_name == 'workflow_dispatch' && inputs.instrumentation-lib == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.instrumentation-lib == 'true' && needs.test-instrumentation-lib-service.result == 'success')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile instrumentation-lib up -d
+          
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            LIB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-lib")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Lib=$LIB_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$LIB_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:8081/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-lib&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
+          OTEL_SERVICE_NAME: songs-lib
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile instrumentation-lib down -v
+
+  integration-test-manual-python:
+    name: Integration Test Manual Python Service
+    runs-on: ubuntu-latest
+    needs: [detect-changes, test-manual-python-service]
+    if: (github.event_name == 'workflow_dispatch' && inputs.manual-python == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.manual-python == 'true' && needs.test-manual-python-service.result == 'success')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile manual-python up -d
+          
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
+          
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            PYTHON_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("manual-python")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Python=$PYTHON_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$PYTHON_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:5000/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=manual-python&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
+          OTEL_SERVICE_NAME: manual-python
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile manual-python down -v
+
