@@ -1,6 +1,5 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "repositories": ["julianocosta89/smells-like-clean-telemetry"],
   "extends": [
     "config:recommended"
   ],
