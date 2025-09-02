@@ -72,7 +72,7 @@ jobs:
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              workflow_id: 'renovate-build-test.yml',
+              workflow_id: 'build-test.yml',
               ref: context.payload.pull_request.head.ref,
               inputs: buildInputs
             });
