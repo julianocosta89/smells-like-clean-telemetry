@@ -3,13 +3,24 @@
   "extends": [
     "config:recommended"
   ],
-  "labels": ["dependencies"],
+  "labels": [
+    "dependencies"
+  ],
   "assigneesFromCodeOwners": true,
   "reviewersFromCodeOwners": true,
   "packageRules": [
     {
+      "matchCategories": [
+        "docker"
+      ],
+      "enabled": true,
+      "pinDigests": false
+    },
+    {
       "description": "Group all Docker base images together",
-      "matchDatasources": ["docker"],
+      "matchDatasources": [
+        "docker"
+      ],
       "matchPackageNames": [
         "node",
         "rust",
@@ -20,52 +31,76 @@
         "postgres"
       ],
       "groupName": "Docker base images",
-      "schedule": ["before 6am"]
+      "schedule": [
+        "before 6am"
+      ]
     },
     {
       "description": "Keep Docker images on LTS versions where applicable",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["node"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "node"
+      ],
       "allowedVersions": "/^\\d+\\.(\\d*[02468]\\.\\d+|0\\.0)/"
     },
     {
       "description": "Keep Java runtime on LTS versions only",
-      "matchDatasources": ["docker"],
-      "matchPackageNames": ["openjdk"],
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "openjdk"
+      ],
       "allowedVersions": "/^(8|11|17|21|25)(-.*)?$/"
     },
     {
       "description": "Group OpenTelemetry packages together",
-      "matchDatasources": ["npm"],
-      "matchPackagePatterns": ["^@opentelemetry/"],
+      "matchDatasources": [
+        "npm"
+      ],
       "groupName": "OpenTelemetry packages",
-      "schedule": ["before 6am"]
+      "schedule": [
+        "before 6am"
+      ],
+      "matchPackageNames": [
+        "/^@opentelemetry//"
+      ]
     },
     {
       "description": "Group Rust dependencies together",
-      "matchDatasources": ["crate"],
+      "matchDatasources": [
+        "crate"
+      ],
       "groupName": "Rust dependencies",
-      "schedule": ["before 6am"]
+      "schedule": [
+        "before 6am"
+      ]
     },
     {
       "description": "Group Java/Gradle dependencies together",
-      "matchDatasources": ["gradle"],
+      "matchDatasources": [
+        "gradle"
+      ],
       "groupName": "Java dependencies",
-      "schedule": ["before 6am"]
+      "schedule": [
+        "before 6am"
+      ]
     },
     {
       "description": "Pin OCB versions and update weekly",
-      "matchDatasources": ["ocb"],
+      "matchDatasources": [
+        "ocb"
+      ],
       "groupName": "OpenTelemetry Collector Builder",
-      "schedule": ["before 6am"]
+      "schedule": [
+        "before 6am"
+      ]
     }
   ],
   "ocb": {
     "enabled": true
-  },
-  "docker": {
-    "enabled": true,
-    "pinDigests": false
   },
   "npm": {
     "enabled": true
@@ -76,7 +111,9 @@
   "gradle": {
     "enabled": true
   },
-  "schedule": ["before 6am"],
+  "schedule": [
+    "before 6am"
+  ],
   "timezone": "Europe/Vienna",
   "dependencyDashboard": true,
   "platformAutomerge": false,
