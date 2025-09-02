@@ -68,6 +68,7 @@ jobs:
             for (const [service, hasChanges] of Object.entries(changes)) {
               buildInputs[service] = hasChanges === 'true' ? 'true' : 'false';
             }
+            buildInputs['target-ref'] = context.payload.pull_request.head.ref;
             
             await github.rest.actions.createWorkflowDispatch({
               owner: context.repo.owner,

@@ -30,6 +30,10 @@ on:
         description: 'Test otel-collector service'
         required: false
         default: 'false'
+      target-ref:
+        description: 'Target ref for integration tests'
+        required: false
+        default: 'main'
 
 permissions:
   contents: read
@@ -184,6 +188,6 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               workflow_id: 'integration-test.yml',
-              ref: context.ref,
+              ref: '${{ inputs.target-ref }}',
               inputs: integrationInputs
             });
