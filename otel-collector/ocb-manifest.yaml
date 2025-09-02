@@ -24,4 +24,4 @@ processors:
   - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/processor/resourceprocessor v0.133.0
 
 connectors:
-  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/datadogconnector v0.133.0
+  - gomod: github.com/open-telemetry/opentelemetry-collector-contrib/connector/datadogconnector v0.134.0
