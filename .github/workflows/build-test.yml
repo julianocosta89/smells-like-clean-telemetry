@@ -1,6 +1,9 @@
 name: Build Test Services
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
   workflow_dispatch:
     inputs:
       auto:
@@ -36,7 +39,7 @@ jobs:
   test-auto-service:
     name: Test Auto Service Build
     runs-on: ubuntu-latest
-    if: inputs.auto == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.auto == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -56,7 +59,7 @@ jobs:
   test-manual-service:
     name: Test Manual Service Build
     runs-on: ubuntu-latest
-    if: inputs.manual == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.manual == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -76,7 +79,7 @@ jobs:
   test-express-auto-service:
     name: Test Express Auto Service Build
     runs-on: ubuntu-latest
-    if: inputs.express-auto == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.express-auto == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -96,7 +99,7 @@ jobs:
   test-instrumentation-lib-service:
     name: Test Instrumentation Lib Service Build
     runs-on: ubuntu-latest
-    if: inputs.instrumentation-lib == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.instrumentation-lib == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -116,7 +119,7 @@ jobs:
   test-manual-python-service:
     name: Test Manual Python Service Build
     runs-on: ubuntu-latest
-    if: inputs.manual-python == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.manual-python == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -136,7 +139,7 @@ jobs:
   test-otel-collector:
     name: Test OpenTelemetry Collector Build
     runs-on: ubuntu-latest
-    if: inputs.otel-collector == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.otel-collector == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5

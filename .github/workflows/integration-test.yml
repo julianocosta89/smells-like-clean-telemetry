@@ -1,6 +1,9 @@
 name: Integration Test Services
 
 on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
   workflow_dispatch:
     inputs:
       auto:
@@ -31,7 +34,7 @@ jobs:
   integration-test-auto:
     name: Integration Test Auto Service
     runs-on: ubuntu-latest
-    if: inputs.auto == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.auto == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -44,12 +47,39 @@ jobs:
           # Start services in background
           docker compose --profile auto up -d
           
-          # Wait for services to be healthy
-          echo "Waiting for services to start..."
-          sleep 30
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
           
-          # Check if services are running
-          docker compose ps
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            AUTO_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-auto")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Auto=$AUTO_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$AUTO_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
           
           # Send test request
           echo "Sending test request..."
@@ -71,7 +101,7 @@ jobs:
           fi
         env:
           OBSERVABILITY_BACKEND: jaeger
-          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
           OTEL_SERVICE_NAME: songs-auto
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
@@ -82,7 +112,7 @@ jobs:
   integration-test-manual:
     name: Integration Test Manual Service
     runs-on: ubuntu-latest
-    if: inputs.manual == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.manual == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -95,12 +125,39 @@ jobs:
           # Start services in background
           docker compose --profile manual up -d
           
-          # Wait for services to be healthy
-          echo "Waiting for services to start..."
-          sleep 30
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
           
-          # Check if services are running
-          docker compose ps
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            MANUAL_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-manual")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Manual=$MANUAL_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$MANUAL_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
           
           # Send test request
           echo "Sending test request..."
@@ -122,7 +179,7 @@ jobs:
           fi
         env:
           OBSERVABILITY_BACKEND: jaeger
-          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
           OTEL_SERVICE_NAME: songs-manual
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
@@ -133,7 +190,7 @@ jobs:
   integration-test-express-auto:
     name: Integration Test Express Auto Service
     runs-on: ubuntu-latest
-    if: inputs.express-auto == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.express-auto == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -146,12 +203,39 @@ jobs:
           # Start services in background
           docker compose --profile express-auto up -d
           
-          # Wait for services to be healthy
-          echo "Waiting for services to start..."
-          sleep 30
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
           
-          # Check if services are running
-          docker compose ps
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            EXPRESS_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("express-auto")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Express=$EXPRESS_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$EXPRESS_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
           
           # Send test request
           echo "Sending test request..."
@@ -173,7 +257,7 @@ jobs:
           fi
         env:
           OBSERVABILITY_BACKEND: jaeger
-          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
           OTEL_SERVICE_NAME: express-auto
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
@@ -184,7 +268,7 @@ jobs:
   integration-test-instrumentation-lib:
     name: Integration Test Instrumentation Lib Service
     runs-on: ubuntu-latest
-    if: inputs.instrumentation-lib == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.instrumentation-lib == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -197,12 +281,39 @@ jobs:
           # Start services in background
           docker compose --profile instrumentation-lib up -d
           
-          # Wait for services to be healthy
-          echo "Waiting for services to start..."
-          sleep 30
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
           
-          # Check if services are running
-          docker compose ps
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            LIB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-lib")) | .Health // .State')
+            DB_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("songs-db")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Lib=$LIB_HEALTHY, DB=$DB_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$LIB_HEALTHY" == *"running"* ]] && [[ "$DB_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
           
           # Send test request
           echo "Sending test request..."
@@ -224,7 +335,7 @@ jobs:
           fi
         env:
           OBSERVABILITY_BACKEND: jaeger
-          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4318
           OTEL_SERVICE_NAME: songs-lib
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
@@ -235,7 +346,7 @@ jobs:
   integration-test-manual-python:
     name: Integration Test Manual Python Service
     runs-on: ubuntu-latest
-    if: inputs.manual-python == 'true'
+    if: github.event_name == 'workflow_dispatch' && inputs.manual-python == 'true'
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -248,12 +359,38 @@ jobs:
           # Start services in background
           docker compose --profile manual-python up -d
           
-          # Wait for services to be healthy
-          echo "Waiting for services to start..."
-          sleep 30
+          # Wait for services to be healthy with timeout
+          echo "Waiting for services to be healthy..."
+          TIMEOUT=60
+          INTERVAL=5
+          ELAPSED=0
           
-          # Check if services are running
-          docker compose ps
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking service health (${ELAPSED}s elapsed)..."
+            
+            # Check if all required services are running and healthy
+            PYTHON_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("manual-python")) | .Health // .State')
+            COLLECTOR_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("otel-collector")) | .Health // .State')
+            JAEGER_HEALTHY=$(docker compose ps --format json | jq -r '.[] | select(.Name | contains("jaeger")) | .Health // .State')
+            
+            echo "Service status: Python=$PYTHON_HEALTHY, Collector=$COLLECTOR_HEALTHY, Jaeger=$JAEGER_HEALTHY"
+            
+            if [[ "$PYTHON_HEALTHY" == *"running"* ]] && [[ "$COLLECTOR_HEALTHY" == *"healthy"* ]] && [[ "$JAEGER_HEALTHY" == *"running"* ]]; then
+              echo "✅ All services are healthy!"
+              docker compose ps
+              break
+            fi
+            
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+          
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "❌ Timeout waiting for services to be healthy"
+            docker compose ps
+            docker compose logs
+            exit 1
+          fi
           
           # Send test request
           echo "Sending test request..."
@@ -275,7 +412,7 @@ jobs:
           fi
         env:
           OBSERVABILITY_BACKEND: jaeger
-          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://otel-collector:4317
           OTEL_SERVICE_NAME: manual-python
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
