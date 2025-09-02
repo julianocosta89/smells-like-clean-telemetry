@@ -77,16 +77,21 @@
       "groupName": "Java dependencies"
     },
     {
-      "description": "Pin OCB versions and update",
+      "description": "Group all OCB components together",
       "matchDatasources": [
         "ocb"
+      ],
+      "matchPackagePatterns": [
+        "^go.opentelemetry.io/collector/",
+        "^github.com/open-telemetry/opentelemetry-collector-contrib/"
       ],
       "groupName": "OpenTelemetry Collector Builder"
     }
   ],
   "ocb": {
     "enabled": true,
-    "managerFilePatterns": ["otel-collector/ocb-manifest.yaml"]
+    "managerFilePatterns": ["otel-collector/ocb-manifest.yaml"],
+    "bumpVersion": "minor"
   },
   "npm": {
     "enabled": true
