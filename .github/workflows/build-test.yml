@@ -164,7 +164,7 @@ jobs:
     name: Trigger Integration Tests
     runs-on: ubuntu-latest
     needs: [test-auto-service, test-manual-service, test-express-auto-service, test-instrumentation-lib-service, test-manual-python-service, test-otel-collector]
-    if: always()
+    if: always() && (needs.test-auto-service.result == 'success' || needs.test-manual-service.result == 'success' || needs.test-express-auto-service.result == 'success' || needs.test-instrumentation-lib-service.result == 'success' || needs.test-manual-python-service.result == 'success')
     steps:
       - name: Trigger integration test workflow
         uses: actions/github-script@v7
