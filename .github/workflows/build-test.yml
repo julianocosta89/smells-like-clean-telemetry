@@ -1,0 +1,188 @@
+name: Build Test Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto:
+        description: 'Test auto service'
+        required: false
+        default: 'false'
+      manual:
+        description: 'Test manual service'
+        required: false
+        default: 'false'
+      express-auto:
+        description: 'Test express-auto service'
+        required: false
+        default: 'false'
+      instrumentation-lib:
+        description: 'Test instrumentation-lib service'
+        required: false
+        default: 'false'
+      manual-python:
+        description: 'Test manual-python service'
+        required: false
+        default: 'false'
+      otel-collector:
+        description: 'Test otel-collector service'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+  actions: write
+
+jobs:
+
+  test-auto-service:
+    name: Test Auto Service Build
+    runs-on: ubuntu-latest
+    if: inputs.auto == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Auto Service
+        run: |
+          docker compose build songs-auto
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: music-service-auto-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+  test-manual-service:
+    name: Test Manual Service Build
+    runs-on: ubuntu-latest
+    if: inputs.manual == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Manual Service
+        run: |
+          docker compose build songs-manual
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: music-service-manual-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+  test-express-auto-service:
+    name: Test Express Auto Service Build
+    runs-on: ubuntu-latest
+    if: inputs.express-auto == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Express Auto Service
+        run: |
+          docker compose build express-auto
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: music-service-express-auto-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+  test-instrumentation-lib-service:
+    name: Test Instrumentation Lib Service Build
+    runs-on: ubuntu-latest
+    if: inputs.instrumentation-lib == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Instrumentation Lib Service
+        run: |
+          docker compose build songs-lib
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: music-service-instrumentation-lib-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+  test-manual-python-service:
+    name: Test Manual Python Service Build
+    runs-on: ubuntu-latest
+    if: inputs.manual-python == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Manual Python Service
+        run: |
+          docker compose build manual-python
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: music-service-manual-python-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+  test-otel-collector:
+    name: Test OpenTelemetry Collector Build
+    runs-on: ubuntu-latest
+    if: inputs.otel-collector == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build OpenTelemetry Collector
+        run: |
+          docker compose build otel-collector
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: otel-collector-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+  trigger-integration-tests:
+    name: Trigger Integration Tests
+    runs-on: ubuntu-latest
+    needs: [test-auto-service, test-manual-service, test-express-auto-service, test-instrumentation-lib-service, test-manual-python-service, test-otel-collector]
+    if: always()
+    steps:
+      - name: Trigger integration test workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const buildResults = {
+              auto: '${{ needs.test-auto-service.result }}',
+              manual: '${{ needs.test-manual-service.result }}',
+              'express-auto': '${{ needs.test-express-auto-service.result }}',
+              'instrumentation-lib': '${{ needs.test-instrumentation-lib-service.result }}',
+              'manual-python': '${{ needs.test-manual-python-service.result }}',
+              'otel-collector': '${{ needs.test-otel-collector.result }}'
+            };
+            
+            // Only trigger integration tests for services that built successfully
+            const integrationInputs = {};
+            for (const [service, result] of Object.entries(buildResults)) {
+              integrationInputs[service] = result === 'success' ? 'true' : 'false';
+            }
+            
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'renovate-integration-test.yml',
+              ref: context.ref,
+              inputs: integrationInputs
+            });

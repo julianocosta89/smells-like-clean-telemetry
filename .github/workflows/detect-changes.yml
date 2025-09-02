@@ -1,0 +1,78 @@
+name: Detect Changes and Trigger Tests
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: read
+  actions: write
+
+jobs:
+  detect-changes:
+    name: Detect Changed Services
+    runs-on: ubuntu-latest
+    outputs:
+      auto: ${{ steps.changes.outputs.auto }}
+      manual: ${{ steps.changes.outputs.manual }}
+      express-auto: ${{ steps.changes.outputs.express-auto }}
+      instrumentation-lib: ${{ steps.changes.outputs.instrumentation-lib }}
+      manual-python: ${{ steps.changes.outputs.manual-python }}
+      otel-collector: ${{ steps.changes.outputs.otel-collector }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Detect changes
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            auto:
+              - 'auto/**'
+            manual:
+              - 'manual/**'
+            express-auto:
+              - 'express-auto/**'
+            instrumentation-lib:
+              - 'instrumentation-lib/**'
+            manual-python:
+              - 'manual-python/**'
+            otel-collector:
+              - 'otel-collector/**'
+
+  trigger-build-tests:
+    name: Trigger Build Tests
+    runs-on: ubuntu-latest
+    needs: [detect-changes]
+    steps:
+      - name: Trigger build workflow
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const changes = {
+              auto: '${{ needs.detect-changes.outputs.auto }}',
+              manual: '${{ needs.detect-changes.outputs.manual }}',
+              'express-auto': '${{ needs.detect-changes.outputs.express-auto }}',
+              'instrumentation-lib': '${{ needs.detect-changes.outputs.instrumentation-lib }}',
+              'manual-python': '${{ needs.detect-changes.outputs.manual-python }}',
+              'otel-collector': '${{ needs.detect-changes.outputs.otel-collector }}'
+            };
+            
+            // Only test services that have changes
+            const buildInputs = {};
+            for (const [service, hasChanges] of Object.entries(changes)) {
+              buildInputs[service] = hasChanges === 'true' ? 'true' : 'false';
+            }
+            
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'renovate-build-test.yml',
+              ref: context.payload.pull_request.head.ref,
+              inputs: buildInputs
+            });

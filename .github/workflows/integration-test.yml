@@ -1,0 +1,284 @@
+name: Integration Test Services
+
+on:
+  workflow_dispatch:
+    inputs:
+      auto:
+        description: 'Test auto service integration'
+        required: false
+        default: 'false'
+      manual:
+        description: 'Test manual service integration'
+        required: false
+        default: 'false'
+      express-auto:
+        description: 'Test express-auto service integration'
+        required: false
+        default: 'false'
+      instrumentation-lib:
+        description: 'Test instrumentation-lib service integration'
+        required: false
+        default: 'false'
+      manual-python:
+        description: 'Test manual-python service integration'
+        required: false
+        default: 'false'
+
+permissions:
+  contents: read
+
+jobs:
+  integration-test-auto:
+    name: Integration Test Auto Service
+    runs-on: ubuntu-latest
+    if: inputs.auto == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile auto up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check if services are running
+          docker compose ps
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:8080/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-auto&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: songs-auto
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile auto down -v
+
+  integration-test-manual:
+    name: Integration Test Manual Service
+    runs-on: ubuntu-latest
+    if: inputs.manual == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile manual up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check if services are running
+          docker compose ps
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:3000/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-manual&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: songs-manual
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile manual down -v
+
+  integration-test-express-auto:
+    name: Integration Test Express Auto Service
+    runs-on: ubuntu-latest
+    if: inputs.express-auto == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile express-auto up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check if services are running
+          docker compose ps
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:3000/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=express-auto&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: express-auto
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile express-auto down -v
+
+  integration-test-instrumentation-lib:
+    name: Integration Test Instrumentation Lib Service
+    runs-on: ubuntu-latest
+    if: inputs.instrumentation-lib == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile instrumentation-lib up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check if services are running
+          docker compose ps
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:8081/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-lib&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: songs-lib
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile instrumentation-lib down -v
+
+  integration-test-manual-python:
+    name: Integration Test Manual Python Service
+    runs-on: ubuntu-latest
+    if: inputs.manual-python == 'true'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Run integration test
+        run: |
+          # Start services in background
+          docker compose --profile manual-python up -d
+          
+          # Wait for services to be healthy
+          echo "Waiting for services to start..."
+          sleep 30
+          
+          # Check if services are running
+          docker compose ps
+          
+          # Send test request
+          echo "Sending test request..."
+          curl -f http://localhost:5000/songs/Polly/Nirvana || exit 1
+          
+          # Wait a bit for trace to be processed
+          sleep 10
+          
+          # Check Jaeger for traces
+          echo "Checking for traces in Jaeger..."
+          TRACES=$(curl -s "http://localhost:16686/api/traces?service=manual-python&limit=1" | jq '.data | length')
+          
+          if [ "$TRACES" -gt 0 ]; then
+            echo "✅ Traces found in Jaeger!"
+          else
+            echo "❌ No traces found in Jaeger"
+            docker compose logs
+            exit 1
+          fi
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4317
+          OTEL_SERVICE_NAME: manual-python
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Cleanup
+        if: always()
+        run: docker compose --profile manual-python down -v
