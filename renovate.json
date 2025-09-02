@@ -1,5 +1,6 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "repositories": ["julianocosta89/smells-like-clean-telemetry"],
   "extends": [
     "config:recommended"
   ],
@@ -30,10 +31,7 @@
         "alpine",
         "postgres"
       ],
-      "groupName": "Docker base images",
-      "schedule": [
-        "before 6am"
-      ]
+      "groupName": "Docker base images"
     },
     {
       "description": "Keep Docker images on LTS versions where applicable",
@@ -61,9 +59,6 @@
         "npm"
       ],
       "groupName": "OpenTelemetry packages",
-      "schedule": [
-        "before 6am"
-      ],
       "matchPackageNames": [
         "/^@opentelemetry//"
       ]
@@ -73,30 +68,21 @@
       "matchDatasources": [
         "crate"
       ],
-      "groupName": "Rust dependencies",
-      "schedule": [
-        "before 6am"
-      ]
+      "groupName": "Rust dependencies"
     },
     {
       "description": "Group Java/Gradle dependencies together",
       "matchDatasources": [
         "gradle"
       ],
-      "groupName": "Java dependencies",
-      "schedule": [
-        "before 6am"
-      ]
+      "groupName": "Java dependencies"
     },
     {
-      "description": "Pin OCB versions and update weekly",
+      "description": "Pin OCB versions and update",
       "matchDatasources": [
         "ocb"
       ],
-      "groupName": "OpenTelemetry Collector Builder",
-      "schedule": [
-        "before 6am"
-      ]
+      "groupName": "OpenTelemetry Collector Builder"
     }
   ],
   "ocb": {
@@ -111,10 +97,6 @@
   "gradle": {
     "enabled": true
   },
-  "schedule": [
-    "before 6am"
-  ],
-  "timezone": "Europe/Vienna",
   "dependencyDashboard": true,
   "platformAutomerge": false,
   "prHourlyLimit": 5,
