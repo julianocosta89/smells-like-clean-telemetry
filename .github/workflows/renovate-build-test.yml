@@ -75,7 +75,7 @@ jobs:
 
       - name: Build Auto Service
         run: |
-          docker compose --profile auto build
+          docker compose build songs-auto
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
@@ -96,7 +96,7 @@ jobs:
 
       - name: Build Manual Service
         run: |
-          docker compose --profile manual build
+          docker compose build songs-manual
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
@@ -117,7 +117,7 @@ jobs:
 
       - name: Build Express Auto Service
         run: |
-          docker compose --profile express-auto build
+          docker compose build express-auto
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
@@ -138,7 +138,7 @@ jobs:
 
       - name: Build Instrumentation Lib Service
         run: |
-          docker compose --profile instrumentation-lib build
+          docker compose build songs-lib
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
@@ -159,7 +159,7 @@ jobs:
 
       - name: Build Manual Python Service
         run: |
-          docker compose --profile manual-python build
+          docker compose build manual-python
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
@@ -180,7 +180,7 @@ jobs:
 
       - name: Build OpenTelemetry Collector
         run: |
-          docker compose --profile otel-collector build
+          docker compose build otel-collector
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
