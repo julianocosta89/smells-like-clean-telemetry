@@ -79,8 +79,12 @@
     },
     {
       "description": "Group all OCB components together",
-      "matchDatasources": [
+      "matchmanagers": [
         "ocb"
+      ],
+      "matchSourceUrls": [
+        "https://github.com/open-telemetry/opentelemetry-collector",
+        "https://github.com/open-telemetry/opentelemetry-collector-contrib"
       ],
       "groupName": "OpenTelemetry Collector Builder"
     }
@@ -88,11 +92,7 @@
   "ocb": {
     "enabled": true,
     "managerFilePatterns": ["otel-collector/ocb-manifest.yaml"],
-    "bumpVersion": "minor",
-    "matchSourceUrls": [
-      "https://github.com/open-telemetry/opentelemetry-collector",
-      "https://github.com/open-telemetry/opentelemetry-collector-contrib"
-    ]
+    "bumpVersion": "minor"
   },
   "npm": {
     "enabled": true
