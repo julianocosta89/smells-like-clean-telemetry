@@ -1,5 +1,6 @@
 from flask import Flask
 import logging
+import os
 from pythonjsonlogger import jsonlogger
 from opentelemetry import trace
 from opentelemetry._logs import set_logger_provider, get_logger
@@ -53,4 +54,6 @@ def get_songs(title, artist):
     }
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    host = os.getenv('HOST', '0.0.0.0')
+    port = int(os.getenv('PORT', '5000'))
+    app.run(debug=True, host=host, port=port)
