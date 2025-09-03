@@ -79,7 +79,7 @@
     },
     {
       "description": "Group all OCB components together",
-      "matchmanagers": [
+      "matchManagers": [
         "ocb"
       ],
       "matchSourceUrls": [
