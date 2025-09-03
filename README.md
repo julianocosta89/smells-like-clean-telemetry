@@ -1,18 +1,11 @@
-# Smells Like Clean Telemetry
+<!-- markdownlint-disable-next-line -->
+# <a href="assets/otelio.svg"><img src="assets/otelio.svg" alt="OTelio" width="45" align="left" style="margin-right: 20px;"></a>Smells Like Clean Telemetry
 
-<p align="left">
-  <a href="images/otelio.svg"><img src="images/otelio.svg" alt="Otelio" width="150" align="left" style="margin-right: 20px;"></a>
-</p>
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?color=red)](https://github.com/julianocosta89/smells-like-clean-telemetry/blob/main/LICENSE)
+[![Build Test Services](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/build-test.yml/badge.svg)](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/build-test.yml)
+[![Renovate](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/renovate-daily.yml/badge.svg)](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/renovate-daily.yml)
 
-### Smells Like Clean Telemetry
-
-<i>Stop the Noise, Create Better Spans</i>
-
-&nbsp;
-
-&nbsp;
-
-This repository contains the examples used in the talk.
+This repository contains the examples used in the "Smells Like Clean Telemetry" talk.
 
 Feel free to use, share, and send improvements/fixes/suggestions.
 
