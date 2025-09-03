@@ -1,7 +1,11 @@
 const express = require('express')
 const { Pool } = require('pg')
+const helmet = require('helmet')
 const app = express()
 const port = 3000
+
+app.use(helmet())
+app.disable('x-powered-by')
 
 
 // Validate required environment variables

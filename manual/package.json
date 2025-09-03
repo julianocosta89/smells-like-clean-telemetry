@@ -5,6 +5,7 @@
     "@opentelemetry/sdk-node": "^0.203.0",
     "@opentelemetry/semantic-conventions": "^1.37.0",
     "express": "^5.1.0",
+    "helmet": "^8.0.0",
     "pg": "^8.16.3"
   }
 }

@@ -1,7 +1,12 @@
 const express = require('express')
 const { Pool } = require('pg')
+const helmet = require('helmet')
 const app = express()
 const port = 3000
+
+app.use(helmet())
+app.disable('x-powered-by')
+
 const opentelemetry = require('@opentelemetry/api')
 const { 
   ATTR_HTTP_REQUEST_METHOD, 
@@ -82,7 +87,7 @@ app.get('/songs/:title/:artist', async (req, res) => {
       WHERE title ILIKE $1 AND artist ILIKE $2
     `
 
-    const dbSpan = tracer.startSpan('SELECT songs_db', {
+    const dbSpan = tracer.startSpan('SELECT songs_db.songs', {
       kind: 2, // client
       attributes: {
         [ATTR_DB_SYSTEM_NAME]: [DB_SYSTEM_NAME_VALUE_POSTGRESQL],
@@ -282,7 +287,7 @@ async function persistSong(title, artist, songData, parentSpan) {
     ON CONFLICT (title, artist) DO NOTHING
   `
 
-  const dbSpan = tracer.startSpan('INSERT songs_db', {
+  const dbSpan = tracer.startSpan('INSERT songs_db.songs', {
       kind: 2, // client
       attributes: {
         [ATTR_DB_SYSTEM_NAME]: [DB_SYSTEM_NAME_VALUE_POSTGRESQL],
