@@ -82,6 +82,10 @@
       "matchDatasources": [
         "ocb"
       ],
+      "matchSourceUrls": [
+        "https://github.com/open-telemetry/opentelemetry-collector",
+        "https://github.com/open-telemetry/opentelemetry-collector-contrib"
+      ],
       "groupName": "OpenTelemetry Collector Builder"
     }
   ],
