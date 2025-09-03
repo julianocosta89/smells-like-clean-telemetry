@@ -99,10 +99,13 @@
   "gradle": {
     "enabled": true
   },
-  "dependencyDashboard": false,
+  "dependencyDashboard": true,
+  "dependencyDashboardAutoclose": true,
+  "osvVulnerabilityAlerts": true,
   "platformAutomerge": false,
   "prHourlyLimit": 5,
   "prConcurrentLimit": 10,
-  "rebaseWhen": "conflicted",
-  "semanticCommits": "enabled"
+  "rebaseWhen": "behind-base-branch",
+  "semanticCommits": "enabled",
+  "gitAuthor": "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>"
 }
