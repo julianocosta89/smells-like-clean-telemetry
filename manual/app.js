@@ -279,7 +279,7 @@ function extractYear(dateString) {
     // Handle various date formats: YYYY, YYYY-MM, YYYY-MM-DD
     const parts = dateString.split('-')
     if (parts.length > 0 && parts[0].length === 4) {
-      return parseInt(parts[0])
+      return parseInt(parts[0], 10)
     }
   } catch (error) {
     logger.debug({ dateString }, 'Could not parse year from date string')
