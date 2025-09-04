@@ -27,7 +27,7 @@ if (missingEnvVars.length > 0) {
 // PostgreSQL connection pool configuration
 const pool = new Pool({
   host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT),
+  port: parseInt(process.env.DB_PORT, 10),
   database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
@@ -182,7 +182,7 @@ async function getSongFromMusicBrainz(title, artist) {
       title: title,
       artist: artist,
       album: targetRelease ? targetRelease.title || 'Unknown' : 'Unknown',
-      year: targetRelease && targetRelease.date ? extractYear(targetRelease.date) : null,
+      year: targetRelease?.date ? extractYear(targetRelease.date) : null,
       duration_ms: bestRecording.length || null,
       genre: genre
     }
