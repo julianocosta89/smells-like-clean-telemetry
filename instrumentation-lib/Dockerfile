@@ -12,10 +12,10 @@ RUN echo Building on ${BUILDPLATFORM} for ${TARGETPLATFORM}
 # Install dependencies - cross-compilation setup for ARM64, native otherwise
 RUN apt-get update && \
     if [ "${TARGETPLATFORM}" = "linux/arm64" ] && [ "${BUILDPLATFORM}" != "linux/arm64" ] ; then \
-        apt-get install --no-install-recommends -y g++-aarch64-linux-gnu libc6-dev-arm64-cross libprotobuf-dev protobuf-compiler ca-certificates && \
+        apt-get install --no-install-recommends -y g++-aarch64-linux-gnu=4:10.3.0-1ubuntu1 libc6-dev-arm64-cross=2.31-0ubuntu9.9 libprotobuf-dev=3.6.1.3-2ubuntu5 protobuf-compiler=3.6.1.3-2ubuntu5 ca-certificates=20230311ubuntu0.20.04.1 && \
         rustup target add aarch64-unknown-linux-gnu; \
     else \
-        apt-get install --no-install-recommends -y g++ libc6-dev libprotobuf-dev protobuf-compiler ca-certificates; \
+        apt-get install --no-install-recommends -y g++=4:10.3.0-1ubuntu1 libc6-dev=2.31-0ubuntu9.9 libprotobuf-dev=3.6.1.3-2ubuntu5 protobuf-compiler=3.6.1.3-2ubuntu5 ca-certificates=20230311ubuntu0.20.04.1; \
     fi
 
 WORKDIR /app/
