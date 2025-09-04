@@ -18,8 +18,6 @@ struct MusicBrainzResponse {
 
 #[derive(Debug, Deserialize)]
 struct Recording {
-    id: String,
-    title: String,
     length: Option<u32>,
     releases: Option<Vec<Release>>,
     tags: Option<Vec<Tag>>,
@@ -27,7 +25,6 @@ struct Recording {
 
 #[derive(Debug, Deserialize)]
 struct Release {
-    id: String,
     title: String,
     date: Option<String>,
 }
