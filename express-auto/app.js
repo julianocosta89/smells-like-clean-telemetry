@@ -1,19 +1,26 @@
 const express = require('express')
 const { Pool } = require('pg')
 const helmet = require('helmet')
+const pino = require('pino')
 const app = express()
 const port = 3000
 
 app.use(helmet())
 app.disable('x-powered-by')
 
+const logger = pino({
+  level: process.env.LOG_LEVEL || 'info',
+  transport: {
+    target: 'pino-opentelemetry-transport'
+  }
+})
 
 // Validate required environment variables
 const requiredEnvVars = ['DB_HOST', 'DB_PORT', 'DB_NAME', 'DB_USER', 'DB_PASSWORD']
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar])
 
 if (missingEnvVars.length > 0) {
-  console.error('Missing required environment variables:', missingEnvVars.join(', '))
+  logger.error({ missingEnvVars }, 'Missing required environment variables')
   process.exit(1)
 }
 
@@ -31,7 +38,7 @@ const pool = new Pool({
 
 // Handle pool errors
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err)
+  logger.error({ err }, 'Unexpected error on idle client')
   process.exit(-1)
 })
 
@@ -85,7 +92,7 @@ app.get('/songs/:title/:artist', async (req, res) => {
       }
     }
   } catch (error) {
-    console.error('Database query error:', error)
+    logger.error({ error }, 'Database query error')
     res.status(500).json({
       error: 'Database error',
       message: error.message
@@ -180,7 +187,7 @@ async function getSongFromMusicBrainz(title, artist) {
       genre: genre
     }
   } catch (error) {
-    console.error('Error fetching from MusicBrainz:', error)
+    logger.error({ error }, 'Error fetching from MusicBrainz')
     return null
   }
 }
@@ -197,7 +204,7 @@ function extractYear(dateString) {
       return parseInt(parts[0])
     }
   } catch (error) {
-    console.debug('Could not parse year from date string:', dateString)
+    logger.debug({ dateString }, 'Could not parse year from date string')
   }
   
   return null
@@ -213,7 +220,7 @@ async function persistSong(title, artist, songData) {
 }
 
 app.listen(port, () => {
-  console.log(`Music service listening on port ${port}`)
+  logger.info({ port }, 'Music service listening')
 })
 
 // Graceful shutdown
