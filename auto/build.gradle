@@ -20,6 +20,6 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'io.opentelemetry:opentelemetry-api:1.53.0'
+	implementation 'io.opentelemetry:opentelemetry-api:1.54.0'
 	runtimeOnly 'org.postgresql:postgresql:42.7.7'
 }
