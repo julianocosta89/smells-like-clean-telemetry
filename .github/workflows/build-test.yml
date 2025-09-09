@@ -223,8 +223,15 @@ jobs:
         if: steps.check-artifact.outputs.exists == 'false'
         run: |
           docker compose build otel-collector
+          # Get the built image name using docker compose
+          IMAGE_NAME=$(docker compose images -q otel-collector)
+          if [ -z "$IMAGE_NAME" ]; then
+            echo "Failed to get image ID from docker compose, trying alternative method"
+            IMAGE_NAME=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep -E "otel-collector|smells-like-clean-telemetry.*otel-collector" | head -1)
+          fi
+          echo "Using image: $IMAGE_NAME"
           # Save image as tar
-          docker save -o otel-collector-image.tar $(docker compose images otel-collector -q)
+          docker save -o otel-collector-image.tar "$IMAGE_NAME"
         env:
           OBSERVABILITY_BACKEND: jaeger
           OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
