@@ -209,15 +209,22 @@ jobs:
         with:
           path: otel-collector-image.tar
           key: ${{ steps.cache-key.outputs.cache-key }}
+          restore-keys: |
+            otel-collector-
 
       - name: Set outputs
         id: set-outputs
         run: |
-          echo "cache-hit=${{ steps.check-cache.outputs.cache-hit }}" >> $GITHUB_OUTPUT
+          # Check if we got an exact cache hit (not just a restore-key match)
+          if [ "${{ steps.check-cache.outputs.cache-matched-key }}" = "${{ steps.cache-key.outputs.cache-key }}" ]; then
+            echo "cache-hit=true" >> $GITHUB_OUTPUT
+          else
+            echo "cache-hit=false" >> $GITHUB_OUTPUT
+          fi
           echo "artifact-name=${{ steps.cache-key.outputs.cache-key }}" >> $GITHUB_OUTPUT
 
       - name: Build OpenTelemetry Collector
-        if: steps.check-cache.outputs.cache-hit != 'true'
+        if: steps.set-outputs.outputs.cache-hit != 'true'
         run: |
           docker compose build otel-collector
           # Get the built image name using docker compose
@@ -236,7 +243,7 @@ jobs:
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
       - name: Save collector image to cache
-        if: steps.check-cache.outputs.cache-hit != 'true'
+        if: steps.set-outputs.outputs.cache-hit != 'true'
         uses: actions/cache/save@0400d5f644dc74513175e3cd8d07132dd4860809  # v4
         with:
           path: otel-collector-image.tar
@@ -285,7 +292,6 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
       - name: Download collector image artifact
-        if: needs.build-otel-collector.outputs.cache-hit != 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
         with:
           name: ${{ needs.build-otel-collector.outputs.artifact-name }}
@@ -355,7 +361,6 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
       - name: Download collector image artifact
-        if: needs.build-otel-collector.outputs.cache-hit != 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
         with:
           name: ${{ needs.build-otel-collector.outputs.artifact-name }}
@@ -425,7 +430,6 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
       - name: Download collector image artifact
-        if: needs.build-otel-collector.outputs.cache-hit != 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
         with:
           name: ${{ needs.build-otel-collector.outputs.artifact-name }}
@@ -495,7 +499,6 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
       - name: Download collector image artifact
-        if: needs.build-otel-collector.outputs.cache-hit != 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
         with:
           name: ${{ needs.build-otel-collector.outputs.artifact-name }}
@@ -565,7 +568,6 @@ jobs:
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
       - name: Download collector image artifact
-        if: needs.build-otel-collector.outputs.cache-hit != 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
         with:
           name: ${{ needs.build-otel-collector.outputs.artifact-name }}
