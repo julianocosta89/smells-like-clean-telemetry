@@ -53,17 +53,6 @@
       "allowedVersions": "/^(8|11|17|21|25)(-.*)?$/"
     },
     {
-      "description": "Group OpenTelemetry packages together",
-      "matchDatasources": [
-        "npm"
-      ],
-      "groupName": "OpenTelemetry packages",
-      "matchPackageNames": [
-        "/^@opentelemetry//"
-      ],
-      "rangeStrategy": "bump"
-    },
-    {
       "description": "Group Rust dependencies together",
       "matchDatasources": [
         "crate"
@@ -87,6 +76,17 @@
         "https://github.com/open-telemetry/opentelemetry-collector-contrib"
       ],
       "groupName": "OpenTelemetry Collector Builder"
+    },
+    {
+      "description": "Group npm dependencies together",
+      "matchDatasources": [
+        "npm"
+      ],
+      "matchPaths": [
+        "express-auto/**",
+        "manual/**"
+      ],
+      "groupName": "npm dependencies"
     }
   ],
   "ocb": {
