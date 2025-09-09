@@ -5,9 +5,9 @@
     "@opentelemetry/exporter-trace-otlp-http": "0.204.0",
     "@opentelemetry/sdk-node": "0.204.0",
     "express": "5.1.0",
-    "helmet": "8.0.0",
+    "helmet": "8.1.0",
     "pg": "8.16.3",
-    "pino": "9.9.2",
-    "pino-opentelemetry-transport": "1.0.1"
+    "pino": "9.9.4",
+    "pino-opentelemetry-transport": "1.1.0"
   }
 }
