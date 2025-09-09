@@ -200,7 +200,7 @@ jobs:
         id: cache-key
         run: |
           # Create hash of collector definition files
-          CACHE_KEY=$(find otel-collector -name "*.yaml" -o -name "Dockerfile" -type f -exec sha256sum {} + | sha256sum | cut -d' ' -f1)
+          CACHE_KEY=$(find otel-collector \( -name "*.yaml" -o -name "Dockerfile" \) -type f -exec sha256sum {} + | sha256sum | cut -d' ' -f1)
           echo "cache-key=otel-collector-$CACHE_KEY" >> $GITHUB_OUTPUT
 
       - name: Check cache for collector image
