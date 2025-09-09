@@ -180,10 +180,70 @@ jobs:
           OTEL_SERVICE_NAME: music-service-manual-python-test
           OTEL_RESOURCE_ATTRIBUTES: service.version=test
 
+  build-otel-collector:
+    name: Build and Cache OpenTelemetry Collector
+    runs-on: ubuntu-latest
+    outputs:
+      artifact-name: ${{ steps.check-artifact.outputs.artifact-name }}
+      cache-key: ${{ steps.cache-key.outputs.cache-key }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8  # v5
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Generate cache key
+        id: cache-key
+        run: |
+          # Create hash of collector definition files
+          CACHE_KEY=$(find otel-collector -name "*.yaml" -o -name "Dockerfile" -type f -exec sha256sum {} + | sha256sum | cut -d' ' -f1)
+          echo "cache-key=$CACHE_KEY" >> $GITHUB_OUTPUT
+
+      - name: Check for existing artifact
+        id: check-artifact
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd  # v8
+        with:
+          script: |
+            const artifacts = await github.rest.actions.listWorkflowRunArtifacts({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId,
+            });
+            
+            const artifactName = `otel-collector-${{ steps.cache-key.outputs.cache-key }}`;
+            const existingArtifact = artifacts.data.artifacts.find(artifact => 
+              artifact.name === artifactName && !artifact.expired
+            );
+            
+            core.setOutput('exists', existingArtifact ? 'true' : 'false');
+            core.setOutput('artifact-name', artifactName);
+
+      - name: Build OpenTelemetry Collector
+        if: steps.check-artifact.outputs.exists == 'false'
+        run: |
+          docker compose build otel-collector
+          # Save image as tar
+          docker save -o otel-collector-image.tar $(docker compose images otel-collector -q)
+        env:
+          OBSERVABILITY_BACKEND: jaeger
+          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
+          OTEL_SERVICE_NAME: otel-collector-test
+          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+
+      - name: Upload collector image as artifact
+        id: artifact
+        if: steps.check-artifact.outputs.exists == 'false'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.2
+        with:
+          name: ${{ steps.check-artifact.outputs.artifact-name }}
+          path: otel-collector-image.tar
+          retention-days: 1
+
   test-otel-collector:
     name: Test OpenTelemetry Collector Build
     runs-on: ubuntu-latest
-    needs: [detect-changes]
+    needs: [detect-changes, build-otel-collector]
     if: (github.event_name == 'workflow_dispatch' && inputs.otel-collector == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.otel-collector == 'true')
     steps:
       - name: Checkout code
@@ -192,19 +252,21 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
 
-      - name: Build OpenTelemetry Collector
+      - name: Download collector image artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        with:
+          name: otel-collector-${{ needs.build-otel-collector.outputs.cache-key }}
+          path: ./
+
+      - name: Load collector image
         run: |
-          docker compose build otel-collector
-        env:
-          OBSERVABILITY_BACKEND: jaeger
-          OTEL_EXPORTER_OTLP_ENDPOINT: http://localhost:4318
-          OTEL_SERVICE_NAME: otel-collector-test
-          OTEL_RESOURCE_ATTRIBUTES: service.version=test
+          docker load -i otel-collector-image.tar
+          echo "OpenTelemetry Collector image loaded from artifact"
 
   integration-test-auto:
     name: Integration Test Auto Service
     runs-on: ubuntu-latest
-    needs: [detect-changes, test-auto-service]
+    needs: [detect-changes, test-auto-service, build-otel-collector]
     if: (github.event_name == 'workflow_dispatch' && inputs.auto == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.auto == 'true' && needs.test-auto-service.result == 'success')
     steps:
       - name: Checkout code
@@ -212,6 +274,16 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Download collector image artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        with:
+          name: otel-collector-${{ needs.build-otel-collector.outputs.cache-key }}
+          path: ./
+
+      - name: Load collector image
+        run: |
+          docker load -i otel-collector-image.tar
 
       - name: Run integration test
         run: |
@@ -256,7 +328,7 @@ jobs:
   integration-test-manual:
     name: Integration Test Manual Service
     runs-on: ubuntu-latest
-    needs: [detect-changes, test-manual-service]
+    needs: [detect-changes, test-manual-service, build-otel-collector]
     if: (github.event_name == 'workflow_dispatch' && inputs.manual == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.manual == 'true' && needs.test-manual-service.result == 'success')
     steps:
       - name: Checkout code
@@ -264,6 +336,16 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Download collector image artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        with:
+          name: otel-collector-${{ needs.build-otel-collector.outputs.cache-key }}
+          path: ./
+
+      - name: Load collector image
+        run: |
+          docker load -i otel-collector-image.tar
 
       - name: Run integration test
         run: |
@@ -308,7 +390,7 @@ jobs:
   integration-test-express-auto:
     name: Integration Test Express Auto Service
     runs-on: ubuntu-latest
-    needs: [detect-changes, test-express-auto-service]
+    needs: [detect-changes, test-express-auto-service, build-otel-collector]
     if: (github.event_name == 'workflow_dispatch' && inputs.express-auto == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.express-auto == 'true' && needs.test-express-auto-service.result == 'success')
     steps:
       - name: Checkout code
@@ -316,6 +398,16 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Download collector image artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        with:
+          name: otel-collector-${{ needs.build-otel-collector.outputs.cache-key }}
+          path: ./
+
+      - name: Load collector image
+        run: |
+          docker load -i otel-collector-image.tar
 
       - name: Run integration test
         run: |
@@ -360,7 +452,7 @@ jobs:
   integration-test-instrumentation-lib:
     name: Integration Test Instrumentation Lib Service
     runs-on: ubuntu-latest
-    needs: [detect-changes, test-instrumentation-lib-service]
+    needs: [detect-changes, test-instrumentation-lib-service, build-otel-collector]
     if: (github.event_name == 'workflow_dispatch' && inputs.instrumentation-lib == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.instrumentation-lib == 'true' && needs.test-instrumentation-lib-service.result == 'success')
     steps:
       - name: Checkout code
@@ -368,6 +460,16 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Download collector image artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        with:
+          name: otel-collector-${{ needs.build-otel-collector.outputs.cache-key }}
+          path: ./
+
+      - name: Load collector image
+        run: |
+          docker load -i otel-collector-image.tar
 
       - name: Run integration test
         run: |
@@ -412,7 +514,7 @@ jobs:
   integration-test-manual-python:
     name: Integration Test Manual Python Service
     runs-on: ubuntu-latest
-    needs: [detect-changes, test-manual-python-service]
+    needs: [detect-changes, test-manual-python-service, build-otel-collector]
     if: (github.event_name == 'workflow_dispatch' && inputs.manual-python == 'true') || (github.event_name == 'pull_request' && needs.detect-changes.outputs.manual-python == 'true' && needs.test-manual-python-service.result == 'success')
     steps:
       - name: Checkout code
@@ -420,6 +522,16 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@e468171a9de216ec08956ac3ada2f0791b6bd435  # v3
+
+      - name: Download collector image artifact
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0  # v5
+        with:
+          name: otel-collector-${{ needs.build-otel-collector.outputs.cache-key }}
+          path: ./
+
+      - name: Load collector image
+        run: |
+          docker load -i otel-collector-image.tar
 
       - name: Run integration test
         run: |
