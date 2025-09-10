@@ -5,7 +5,7 @@
 [![Build Test Services](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/build-test.yml/badge.svg)](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/build-test.yml)
 [![Renovate](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/renovate-daily.yml/badge.svg)](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/renovate-daily.yml)
 
-This repository contains the examples used in the "Smells Like Clean Telemetry" talk.
+This repository contains the examples used in the "[Smells Like Clean Telemetry][1]" talk.
 
 Feel free to use, share, and send improvements/fixes/suggestions.
 
@@ -230,3 +230,5 @@ For detailed Weaver usage instructions, see the [Weaver Guide](weaver/README.md)
 ## License
 
 This project is open source and available under the Apache License 2.0.
+
+[1]: https://jcosta.dev/talks/smells-like-clean-telemetry/
