@@ -9,7 +9,7 @@ mod telemetry_conf;
 async fn main() -> std::io::Result<()> {
     telemetry_conf::init_otel().expect("Failed to initialize OpenTelemetry");
 
-    HttpServer::new(move || {
+    HttpServer::new(|| {
         App::new()
             .wrap(RequestTracing::new())
             .service(handlers::songs)
