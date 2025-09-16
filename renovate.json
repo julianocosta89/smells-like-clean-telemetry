@@ -82,7 +82,7 @@
       "matchDatasources": [
         "npm"
       ],
-      "matchPaths": [
+      "matchFileNames": [
         "express-auto/**",
         "manual/**"
       ],
@@ -91,7 +91,9 @@
   ],
   "ocb": {
     "enabled": true,
-    "managerFilePatterns": ["otel-collector/ocb-manifest.yaml"],
+    "managerFilePatterns": [
+      "otel-collector/ocb-manifest.yaml"
+    ],
     "bumpVersion": "minor"
   },
   "npm": {
