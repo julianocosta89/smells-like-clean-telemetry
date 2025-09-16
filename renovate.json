@@ -57,7 +57,14 @@
       "matchDatasources": [
         "crate"
       ],
-      "groupName": "Rust dependencies"
+      "matchPaths": [
+        "instrumentation-lib/**"
+      ],
+      "groupName": "Rust dependencies",
+      "lockFileMaintenance": {
+        "enabled": true
+      },
+      "rangeStrategy": "update-lockfile"
     },
     {
       "description": "Group Java/Gradle dependencies together",
@@ -98,7 +105,8 @@
     "enabled": true
   },
   "cargo": {
-    "enabled": true
+    "enabled": true,
+    "rangeStrategy": "update-lockfile"
   },
   "gradle": {
     "enabled": true
