@@ -7,15 +7,15 @@ name = "demo"
 path = "main.rs"
 
 [dependencies]
-actix-web = "4"
-rustls = "0.23.28"
-tokio-postgres = "0.7"
-tokio = { version = "1.0", features = ["full"] }
-awc = { version = "3.7.0", features = ["rustls"] }
-serde = { version = "1.0.219", features = ["derive"] }
-serde_json = "1.0.140"
-log = "0.4.27"
-urlencoding = "2.1"
+actix-web = "4.11.0"
+rustls = "0.23.31"
+tokio-postgres = "0.7.13"
+tokio = { version = "1.47.1", features = ["full"] }
+awc = { version = "3.8.0", features = ["rustls"] }
+serde = { version = "1.0.225", features = ["derive"] }
+serde_json = "1.0.145"
+log = "0.4.28"
+urlencoding = "2.1.3"
 
 opentelemetry-instrumentation-actix-web = { version = "0.22.0", features = ["awc"] }
 opentelemetry = "0.30.0"
