@@ -100,7 +100,8 @@
     "enabled": true
   },
   "cargo": {
-    "enabled": true
+    "enabled": true,
+    "rangeStrategy": "bump"
   },
   "gradle": {
     "enabled": true
