@@ -69,11 +69,15 @@
     {
       "description": "Group all OCB components together",
       "matchManagers": [
-        "ocb"
+        "ocb",
+        "regex"
       ],
       "matchSourceUrls": [
         "https://github.com/open-telemetry/opentelemetry-collector",
         "https://github.com/open-telemetry/opentelemetry-collector-contrib"
+      ],
+      "matchPackageNames": [
+        "open-telemetry/opentelemetry-collector-releases"
       ],
       "groupName": "OpenTelemetry Collector Builder"
     },
@@ -106,6 +110,22 @@
   "gradle": {
     "enabled": true
   },
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Update OpenTelemetry Collector Builder version in Dockerfile",
+      "fileMatch": [
+        "otel-collector/Dockerfile"
+      ],
+      "matchStrings": [
+        "ARG BUILDER_VERSION=(?<currentValue>.*?)\\n"
+      ],
+      "depNameTemplate": "cmd/builder",
+      "packageNameTemplate": "open-telemetry/opentelemetry-collector-releases",
+      "datasourceTemplate": "github-releases",
+      "extractVersionTemplate": "^cmd/builder/v(?<version>.*)$"
+    }
+  ],
   "dependencyDashboard": true,
   "dependencyDashboardAutoclose": true,
   "osvVulnerabilityAlerts": true,
