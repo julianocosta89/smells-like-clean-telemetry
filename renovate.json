@@ -57,7 +57,8 @@
       "matchDatasources": [
         "crate"
       ],
-      "groupName": "Rust dependencies"
+      "groupName": "Rust dependencies",
+      "postUpdateOptions": ["cargoUpdateAll"]
     },
     {
       "description": "Group Java/Gradle dependencies together",
@@ -105,10 +106,7 @@
   },
   "cargo": {
     "enabled": true,
-    "rangeStrategy": "bump",
-    "lockFileMaintenance": {
-      "enabled": true
-    }
+    "rangeStrategy": "bump"
   },
   "gradle": {
     "enabled": true
