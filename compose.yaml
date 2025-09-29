@@ -25,7 +25,7 @@ services:
       - auto
 
   songs-db:
-    image: postgres:17.6-alpine3.22
+    image: postgres:18.0-alpine3.22
     ports:
       - 5432
     environment:
