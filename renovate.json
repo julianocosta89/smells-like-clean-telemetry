@@ -58,7 +58,7 @@
         "crate"
       ],
       "groupName": "Rust dependencies",
-      "postUpdateOptions": ["cargoUpdateAll"]
+      "rangeStrategy": "update-lockfile"
     },
     {
       "description": "Group Java/Gradle dependencies together",
