@@ -22,7 +22,3 @@ jobs:
           token: ${{ secrets.RENOVATE_TOKEN }}
         env:
           RENOVATE_REPOSITORIES: julianocosta89/smells-like-clean-telemetry
-          # FIX: Set CARGO_HOME to a temporary directory to avoid lock file contention
-          # This forces 'cargo update' to use a fresh, unique cache path for each run.
-          # https://github.com/renovatebot/renovate/discussions/38235
-          CARGO_HOME: /tmp/renovate-cargo-home 
