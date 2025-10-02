@@ -91,13 +91,6 @@
         "manual/**"
       ],
       "groupName": "npm dependencies"
-    },
-    {
-      "matchManagers": ["cargo"],
-      "description": "Isolate CARGO_HOME to fix containerbase cache conflict (OS Error 17)",
-      "env": {
-        "CARGO_HOME": "/tmp/cargo-home"
-      }
     }
   ],
   "ocb": {
