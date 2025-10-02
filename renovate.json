@@ -145,7 +145,7 @@
   "rebaseWhen": "behind-base-branch",
   "semanticCommits": "enabled",
   "gitAuthor": "renovate[bot] <29139614+renovate[bot]@users.noreply.github.com>",
-  "allowedPostUpgradeCommands": [
+  "allowedCommands": [
     "^rm -rf /home/ubuntu/\\.cargo \\|\\| true$",
     "^mkdir -p /home/ubuntu/\\.cargo$"
   ]
