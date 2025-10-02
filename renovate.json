@@ -105,7 +105,17 @@
   },
   "cargo": {
     "enabled": true,
-    "rangeStrategy": "bump"
+    "rangeStrategy": "bump",
+    "postUpgradeTasks": {
+      "commands": [
+        "rm -rf /home/ubuntu/.cargo || true",
+        "mkdir -p /home/ubuntu/.cargo"
+      ],
+      "fileFilters": [
+        "instrumentation-lib/Cargo.lock"
+      ],
+      "executionMode": "update"
+    }
   },
   "gradle": {
     "enabled": true
