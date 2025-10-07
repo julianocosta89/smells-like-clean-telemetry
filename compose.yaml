@@ -115,7 +115,7 @@ services:
       - express-auto
 
   jaeger:
-    image: cr.jaegertracing.io/jaegertracing/jaeger:2.10.0
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.11.0
     ports:
       - 16686:16686
       - 4317
