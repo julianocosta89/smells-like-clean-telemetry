@@ -67,19 +67,12 @@
       "groupName": "Java dependencies"
     },
     {
-      "description": "Group all OCB components together",
-      "matchManagers": [
-        "ocb",
-        "custom.regex"
-      ],
-      "matchSourceUrls": [
-        "https://github.com/open-telemetry/opentelemetry-collector",
-        "https://github.com/open-telemetry/opentelemetry-collector-contrib"
-      ],
+      "groupName": "OpenTelemetry Collector Builder",
       "matchPackageNames": [
-        "open-telemetry/opentelemetry-collector-releases"
-      ],
-      "groupName": "OpenTelemetry Collector Builder"
+        "/^go\\.opentelemetry\\.io/collector//",
+        "/^github\\.com/open-telemetry/opentelemetry-collector-contrib//",
+        "/open-telemetry/opentelemetry-collector-releases/"
+      ]
     },
     {
       "description": "Group npm dependencies together",
