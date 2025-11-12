@@ -84,6 +84,16 @@
         "manual/**"
       ],
       "groupName": "npm dependencies"
+    },
+    {
+      "description": "Group otel/weaver Docker images with README references",
+      "matchDatasources": [
+        "docker"
+      ],
+      "matchPackageNames": [
+        "otel/weaver"
+      ],
+      "groupName": "otel/weaver"
     }
   ],
   "ocb": {
@@ -117,6 +127,20 @@
       "packageNameTemplate": "open-telemetry/opentelemetry-collector-releases",
       "datasourceTemplate": "github-releases",
       "extractVersionTemplate": "^cmd/builder/v(?<version>.*)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Update otel/weaver version references in weaver README",
+      "managerFilePatterns": [
+        "^weaver/README\\.md$"
+      ],
+      "matchStrings": [
+        "otel/weaver:v(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "depNameTemplate": "otel/weaver",
+      "packageNameTemplate": "open-telemetry/weaver",
+      "datasourceTemplate": "github-releases",
+      "groupName": "otel/weaver"
     }
   ],
   "dependencyDashboard": true,
