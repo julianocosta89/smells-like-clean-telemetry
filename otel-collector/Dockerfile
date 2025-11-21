@@ -1,7 +1,7 @@
 FROM golang:latest AS build
 
 ARG TARGETARCH
-ARG BUILDER_VERSION=0.139.0
+ARG BUILDER_VERSION=0.140.0
 
 RUN curl --proto '=https' --tlsv1.2 -fL -o bin/ocb \
     https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/cmd%2Fbuilder%2Fv${BUILDER_VERSION}/ocb_${BUILDER_VERSION}_linux_${TARGETARCH}
