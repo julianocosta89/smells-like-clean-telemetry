@@ -4,7 +4,7 @@
     "@opentelemetry/auto-instrumentations-node": "0.67.2",
     "@opentelemetry/exporter-trace-otlp-http": "0.208.0",
     "@opentelemetry/sdk-node": "0.208.0",
-    "express": "5.1.0",
+    "express": "5.2.1",
     "helmet": "8.1.0",
     "pg": "8.16.3",
     "pino": "10.1.0",
