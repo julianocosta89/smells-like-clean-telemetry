@@ -205,7 +205,7 @@ jobs:
 
       - name: Check cache for collector image
         id: check-cache
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ steps.cache-key.outputs.cache-key }}
@@ -244,7 +244,7 @@ jobs:
 
       - name: Save collector image to cache
         if: steps.set-outputs.outputs.cache-hit != 'true'
-        uses: actions/cache/save@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ steps.cache-key.outputs.cache-key }}
@@ -299,7 +299,7 @@ jobs:
 
       - name: Restore collector image from cache
         if: needs.build-otel-collector.outputs.cache-hit == 'true'
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ needs.build-otel-collector.outputs.cache-key }}
@@ -368,7 +368,7 @@ jobs:
 
       - name: Restore collector image from cache
         if: needs.build-otel-collector.outputs.cache-hit == 'true'
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ needs.build-otel-collector.outputs.cache-key }}
@@ -437,7 +437,7 @@ jobs:
 
       - name: Restore collector image from cache
         if: needs.build-otel-collector.outputs.cache-hit == 'true'
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ needs.build-otel-collector.outputs.cache-key }}
@@ -506,7 +506,7 @@ jobs:
 
       - name: Restore collector image from cache
         if: needs.build-otel-collector.outputs.cache-hit == 'true'
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ needs.build-otel-collector.outputs.cache-key }}
@@ -575,7 +575,7 @@ jobs:
 
       - name: Restore collector image from cache
         if: needs.build-otel-collector.outputs.cache-hit == 'true'
-        uses: actions/cache/restore@0057852bfaa89a56745cba8c7296529d2fc39830  # v4
+        uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb  # v5
         with:
           path: otel-collector-image.tar
           key: ${{ needs.build-otel-collector.outputs.cache-key }}
