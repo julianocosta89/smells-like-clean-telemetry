@@ -4,6 +4,59 @@ package dev.jcosta.semconv;
 
 public final class Attributes {
     /**
+     * <p>The source code file name that identifies the code unit as uniquely as possible (preferably an absolute file path). This attribute MUST NOT be used on the Profile signal since the data is already captured in 'message Function'. This constraint is imposed to prevent redundancy and maintain data integrity.</p>
+     * <h2>Examples</h2>
+     * <ul>
+     *   <li><c>"/usr/local/MyApplication/content_root/app/index.php"</c></li>
+     * </ul>
+     */
+    public static final String CODE_FILE_PATH = "code.file.path";
+
+    /**
+     * <p>The method or function fully-qualified name without arguments. The value should fit the natural representation of the language runtime, which is also likely the same used within <c>code.stacktrace</c> attribute value. This attribute MUST NOT be used on the Profile signal since the data is already captured in 'message Function'. This constraint is imposed to prevent redundancy and maintain data integrity.</p>
+     * <h2>Notes</h2><p>Values and format depends on each language runtime, thus it is impossible to provide an exhaustive list of examples.
+     * The values are usually the same (or prefixes of) the ones found in native stack trace representation stored in
+     * <c>code.stacktrace</c> without information on arguments.</p>
+     * <p>Examples:</p>
+     * <ul>
+     *   <li>Java method: <c>com.example.MyHttpService.serveRequest</c></li>
+     *   <li>Java anonymous class method: <c>com.mycompany.Main$1.myMethod</c></li>
+     *   <li>Java lambda method: <c>com.mycompany.Main$$Lambda/0x0000748ae4149c00.myMethod</c></li>
+     *   <li>PHP function: <c>GuzzleHttp\Client::transfer</c></li>
+     *   <li>Go function: <c>github.com/my/repo/pkg.foo.func5</c></li>
+     *   <li>Elixir: <c>OpenTelemetry.Ctx.new</c></li>
+     *   <li>Erlang: <c>opentelemetry_ctx:new</c></li>
+     *   <li>Rust: <c>playground::my_module::my_cool_func</c></li>
+     *   <li>C function: <c>fopen</c></li>
+     * </ul>
+     * <h2>Examples</h2>
+     * <ul>
+     *   <li><c>"com.example.MyHttpService.serveRequest"</c></li>
+     *   <li><c>"GuzzleHttp\\Client::transfer"</c></li>
+     *   <li><c>"fopen"</c></li>
+     * </ul>
+     */
+    public static final String CODE_FUNCTION_NAME = "code.function.name";
+
+    /**
+     * <p>The line number in <c>code.file.path</c> best representing the operation. It SHOULD point within the code unit named in <c>code.function.name</c>. This attribute MUST NOT be used on the Profile signal since the data is already captured in 'message Line'. This constraint is imposed to prevent redundancy and maintain data integrity.</p>
+     * <h2>Examples</h2>
+     * <ul>
+     *   <li><c>42</c></li>
+     * </ul>
+     */
+    public static final String CODE_LINE_NUMBER = "code.line.number";
+
+    /**
+     * <p>A stacktrace as a string in the natural representation for the language runtime. The representation is identical to <a href="/docs/exceptions/exceptions-spans.md#stacktrace-representation"><c>exception.stacktrace</c></a>. This attribute MUST NOT be used on the Profile signal since the data is already captured in 'message Location'. This constraint is imposed to prevent redundancy and maintain data integrity.</p>
+     * <h2>Examples</h2>
+     * <ul>
+     *   <li><c>"at com.example.GenerateTrace.methodB(GenerateTrace.java:13)\\n at com.example.GenerateTrace.methodA(GenerateTrace.java:9)\\n at com.example.GenerateTrace.main(GenerateTrace.java:5)\n"</c></li>
+     * </ul>
+     */
+    public static final String CODE_STACKTRACE = "code.stacktrace";
+
+    /**
      * <p>The name of the album containing the song.</p>
      * <h2>Examples</h2>
      * <ul>

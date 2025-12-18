@@ -23,5 +23,6 @@ All registered attributes are listed by namespace in this registry.
 
 Currently, the following namespaces exist:
 
+- [Code Attributes](code-attributes.md)
 - [Media Content](media-content.md)
 - [Otel Sdk](otel-sdk.md)

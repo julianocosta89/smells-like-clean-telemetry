@@ -62,3 +62,13 @@ groups:
       - ref: telemetry.sdk.language
       - ref: telemetry.sdk.version
       - ref: telemetry.sdk.name
+
+  - id: registry.code_attributes
+    type: attribute_group
+    display_name: Code Attributes
+    brief: Attributes used to describe code context.
+    attributes:
+      - ref: code.file.path
+      - ref: code.function.name
+      - ref: code.line.number
+      - ref: code.stacktrace
