@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8  # v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
       - name: Renovate Bot GitHub Action
         uses: renovatebot/github-action@957af03d760b2c87fc65cb95628f6d5f95d9c578  # v46.0.0
         with:
