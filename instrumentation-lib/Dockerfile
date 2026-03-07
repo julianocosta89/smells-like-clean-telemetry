@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 
-FROM --platform=${BUILDPLATFORM} docker.io/library/rust:1.92 AS builder
+FROM --platform=${BUILDPLATFORM} docker.io/library/rust:1.94 AS builder
 ARG TARGETARCH
 ARG TARGETPLATFORM
 ARG BUILDPLATFORM
@@ -12,13 +12,12 @@ RUN echo Building on ${BUILDPLATFORM} for ${TARGETPLATFORM}
 # Install dependencies - cross-compilation setup for ARM64, native otherwise
 RUN apt-get update && \
     if [ "${TARGETPLATFORM}" = "linux/arm64" ] && [ "${BUILDPLATFORM}" != "linux/arm64" ] ; then \
-        apt-get install --no-install-recommends -y g++-aarch64-linux-gnu=4:14.2.0-1 \
-        libc6-dev-arm64-cross=2.41-11cross1 libprotobuf-dev=3.21.12-11 \
-        protobuf-compiler=3.21.12-11 ca-certificates=20250419 && \
+        apt-get install --no-install-recommends -y g++-aarch64-linux-gnu \
+        libc6-dev-arm64-cross libprotobuf-dev protobuf-compiler ca-certificates && \
         rustup target add aarch64-unknown-linux-gnu; \
     else \
-        apt-get install --no-install-recommends -y g++=4:14.2.0-1 libc6-dev=2.41-12 \
-        libprotobuf-dev=3.21.12-11 protobuf-compiler=3.21.12-11 ca-certificates=20250419; \
+        apt-get install --no-install-recommends -y g++ libc6-dev \
+        libprotobuf-dev protobuf-compiler ca-certificates; \
     fi
 
 WORKDIR /app/
@@ -37,7 +36,7 @@ RUN if [ "${TARGETPLATFORM}" = "linux/arm64" ] && [ "${BUILDPLATFORM}" != "linux
     fi
 
 
-FROM gcr.io/distroless/cc-debian12:nonroot
+FROM gcr.io/distroless/cc-debian13:nonroot
 
 WORKDIR /app
 
