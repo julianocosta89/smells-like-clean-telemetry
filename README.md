@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg?color=red)](https://github.com/julianocosta89/smells-like-clean-telemetry/blob/main/LICENSE)
 [![Build Test Services](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/build-test.yml/badge.svg)](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/build-test.yml)
 [![Renovate](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/renovate-daily.yml/badge.svg)](https://github.com/julianocosta89/smells-like-clean-telemetry/actions/workflows/renovate-daily.yml)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjulianocosta89%2Fsmells-like-clean-telemetry.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjulianocosta89%2Fsmells-like-clean-telemetry?ref=badge_shield)
 
 This repository contains the examples used in the "[Smells Like Clean Telemetry][1]" talk.
 
@@ -232,3 +233,6 @@ For detailed Weaver usage instructions, see the [Weaver Guide](weaver/README.md)
 This project is open source and available under the Apache License 2.0.
 
 [1]: https://jcosta.dev/talks/smells-like-clean-telemetry/
+
+
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fjulianocosta89%2Fsmells-like-clean-telemetry.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fjulianocosta89%2Fsmells-like-clean-telemetry?ref=badge_large)
