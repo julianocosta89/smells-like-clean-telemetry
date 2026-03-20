@@ -21,6 +21,6 @@ opentelemetry-instrumentation-actix-web = { version = "0.23.0", features = ["awc
 opentelemetry = "0.31.0"
 opentelemetry-appender-log = "0.31.0"
 opentelemetry_sdk = "0.31.0"
-opentelemetry-otlp = "0.31.0"
+opentelemetry-otlp = "0.31.1"
 opentelemetry-resource-detectors = "0.10.0"
 opentelemetry-semantic-conventions = "0.31.0"
