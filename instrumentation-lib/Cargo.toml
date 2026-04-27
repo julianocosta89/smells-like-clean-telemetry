@@ -8,9 +8,9 @@ path = "main.rs"
 
 [dependencies]
 actix-web = "4.13.0"
-rustls = "0.23.38"
+rustls = "0.23.39"
 tokio-postgres = "0.7.17"
-tokio = { version = "1.51.1", features = ["full"] }
+tokio = { version = "1.52.1", features = ["full"] }
 awc = { version = "3.8.2", features = ["rustls"] }
 serde = { version = "1.0.228", features = ["derive"] }
 serde_json = "1.0.149"
