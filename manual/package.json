@@ -1,8 +1,8 @@
 {
   "dependencies": {
     "@opentelemetry/api": "1.9.1",
-    "@opentelemetry/resources": "2.7.0",
-    "@opentelemetry/sdk-node": "0.215.0",
+    "@opentelemetry/resources": "2.7.1",
+    "@opentelemetry/sdk-node": "0.216.0",
     "@opentelemetry/semantic-conventions": "1.40.0",
     "express": "5.2.1",
     "helmet": "8.1.0",
