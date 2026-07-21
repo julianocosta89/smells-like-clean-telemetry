@@ -7,14 +7,14 @@ name = "demo"
 path = "main.rs"
 
 [dependencies]
-actix-web = "4.13.0"
-rustls = "0.23.40"
+actix-web = "4.14.0"
+rustls = "0.23.42"
 tokio-postgres = "0.7.17"
-tokio = { version = "1.52.3", features = ["full"] }
+tokio = { version = "1.53.1", features = ["full"] }
 awc = { version = "3.8.2", features = ["rustls"] }
-serde = { version = "1.0.228", features = ["derive"] }
-serde_json = "1.0.150"
-log = "0.4.32"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.151"
+log = "0.4.33"
 urlencoding = "2.1.3"
 
 opentelemetry-instrumentation-actix-web = { version = "0.24.0", features = ["awc"] }
@@ -23,4 +23,4 @@ opentelemetry-appender-log = "0.32.0"
 opentelemetry_sdk = "0.32.1"
 opentelemetry-otlp = "0.32.0"
 opentelemetry-resource-detectors = "0.11.0"
-opentelemetry-semantic-conventions = "0.32.0"
+opentelemetry-semantic-conventions = "0.32.1"
