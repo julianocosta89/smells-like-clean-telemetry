@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "@opentelemetry/api": "1.9.1",
-    "@opentelemetry/resources": "2.7.1",
-    "@opentelemetry/sdk-node": "0.218.0",
-    "@opentelemetry/semantic-conventions": "1.41.1",
+    "@opentelemetry/resources": "2.10.0",
+    "@opentelemetry/sdk-node": "0.221.0",
+    "@opentelemetry/semantic-conventions": "1.43.0",
     "express": "5.2.1",
-    "helmet": "8.2.0",
-    "pg": "8.21.0",
+    "helmet": "8.3.0",
+    "pg": "8.22.0",
     "pino": "10.3.1",
     "pino-opentelemetry-transport": "3.0.0"
   }
