@@ -1,12 +1,12 @@
 {
   "dependencies": {
     "@opentelemetry/api": "1.9.1",
-    "@opentelemetry/auto-instrumentations-node": "0.76.0",
-    "@opentelemetry/exporter-trace-otlp-http": "0.218.0",
-    "@opentelemetry/sdk-node": "0.218.0",
+    "@opentelemetry/auto-instrumentations-node": "0.79.0",
+    "@opentelemetry/exporter-trace-otlp-http": "0.221.0",
+    "@opentelemetry/sdk-node": "0.221.0",
     "express": "5.2.1",
-    "helmet": "8.2.0",
-    "pg": "8.21.0",
+    "helmet": "8.3.0",
+    "pg": "8.22.0",
     "pino": "10.3.1",
     "pino-opentelemetry-transport": "3.0.0"
   }
