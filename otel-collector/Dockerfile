@@ -16,13 +16,13 @@ ENV CGO_ENABLED=0
 RUN ocb --config ./manifest.yaml
 
 
-FROM alpine:3.23 AS certs
+FROM alpine:3.24 AS certs
 RUN apk --update add ca-certificates
 
 
 # Final step runs the custom Collector binary
 # with its configuration file
-FROM alpine:3.23
+FROM alpine:3.24
 RUN apk --no-cache add curl
 
 ARG USER_UID=10001
