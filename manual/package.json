@@ -8,6 +8,6 @@
     "helmet": "8.3.0",
     "pg": "8.22.0",
     "pino": "10.3.1",
-    "pino-opentelemetry-transport": "3.0.0"
+    "pino-opentelemetry-transport": "4.0.2"
   }
 }
