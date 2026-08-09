@@ -6,7 +6,7 @@
     "@opentelemetry/semantic-conventions": "1.43.0",
     "express": "5.2.1",
     "helmet": "8.3.0",
-    "pg": "8.22.0",
+    "pg": "8.23.0",
     "pino": "10.3.1",
     "pino-opentelemetry-transport": "4.0.2"
   }
