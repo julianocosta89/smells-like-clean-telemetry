@@ -329,7 +329,11 @@ jobs:
           
           # Check Jaeger for traces
           echo "Checking for traces in Jaeger..."
-          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-auto&limit=1" | jq '.data | length')
+          # Jaeger >= 2.22 removed the legacy /api/traces endpoint; use the v3 API.
+          # The v3 search needs an explicit time window and returns OTLP JSON.
+          START=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          END=$(date -u -d '+1 minute' +%Y-%m-%dT%H:%M:%SZ)
+          TRACES=$(curl -s "http://localhost:16686/api/v3/traces?query.service_name=songs-auto&query.search_depth=1&query.start_time_min=${START}&query.start_time_max=${END}" | jq '[.result.resourceSpans[]?] | length')
           
           if [ "$TRACES" -gt 0 ]; then
             echo "✅ Traces found in Jaeger!"
@@ -398,7 +402,11 @@ jobs:
           
           # Check Jaeger for traces
           echo "Checking for traces in Jaeger..."
-          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-manual&limit=1" | jq '.data | length')
+          # Jaeger >= 2.22 removed the legacy /api/traces endpoint; use the v3 API.
+          # The v3 search needs an explicit time window and returns OTLP JSON.
+          START=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          END=$(date -u -d '+1 minute' +%Y-%m-%dT%H:%M:%SZ)
+          TRACES=$(curl -s "http://localhost:16686/api/v3/traces?query.service_name=songs-manual&query.search_depth=1&query.start_time_min=${START}&query.start_time_max=${END}" | jq '[.result.resourceSpans[]?] | length')
           
           if [ "$TRACES" -gt 0 ]; then
             echo "✅ Traces found in Jaeger!"
@@ -467,7 +475,11 @@ jobs:
           
           # Check Jaeger for traces
           echo "Checking for traces in Jaeger..."
-          TRACES=$(curl -s "http://localhost:16686/api/traces?service=express-auto&limit=1" | jq '.data | length')
+          # Jaeger >= 2.22 removed the legacy /api/traces endpoint; use the v3 API.
+          # The v3 search needs an explicit time window and returns OTLP JSON.
+          START=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          END=$(date -u -d '+1 minute' +%Y-%m-%dT%H:%M:%SZ)
+          TRACES=$(curl -s "http://localhost:16686/api/v3/traces?query.service_name=express-auto&query.search_depth=1&query.start_time_min=${START}&query.start_time_max=${END}" | jq '[.result.resourceSpans[]?] | length')
           
           if [ "$TRACES" -gt 0 ]; then
             echo "✅ Traces found in Jaeger!"
@@ -536,7 +548,11 @@ jobs:
           
           # Check Jaeger for traces
           echo "Checking for traces in Jaeger..."
-          TRACES=$(curl -s "http://localhost:16686/api/traces?service=songs-lib&limit=1" | jq '.data | length')
+          # Jaeger >= 2.22 removed the legacy /api/traces endpoint; use the v3 API.
+          # The v3 search needs an explicit time window and returns OTLP JSON.
+          START=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          END=$(date -u -d '+1 minute' +%Y-%m-%dT%H:%M:%SZ)
+          TRACES=$(curl -s "http://localhost:16686/api/v3/traces?query.service_name=songs-lib&query.search_depth=1&query.start_time_min=${START}&query.start_time_max=${END}" | jq '[.result.resourceSpans[]?] | length')
           
           if [ "$TRACES" -gt 0 ]; then
             echo "✅ Traces found in Jaeger!"
@@ -605,7 +621,11 @@ jobs:
           
           # Check Jaeger for traces
           echo "Checking for traces in Jaeger..."
-          TRACES=$(curl -s "http://localhost:16686/api/traces?service=manual-python&limit=1" | jq '.data | length')
+          # Jaeger >= 2.22 removed the legacy /api/traces endpoint; use the v3 API.
+          # The v3 search needs an explicit time window and returns OTLP JSON.
+          START=$(date -u -d '-15 minutes' +%Y-%m-%dT%H:%M:%SZ)
+          END=$(date -u -d '+1 minute' +%Y-%m-%dT%H:%M:%SZ)
+          TRACES=$(curl -s "http://localhost:16686/api/v3/traces?query.service_name=manual-python&query.search_depth=1&query.start_time_min=${START}&query.start_time_max=${END}" | jq '[.result.resourceSpans[]?] | length')
           
           if [ "$TRACES" -gt 0 ]; then
             echo "✅ Traces found in Jaeger!"
