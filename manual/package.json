@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@opentelemetry/api": "1.9.1",
-    "@opentelemetry/resources": "2.10.0",
+    "@opentelemetry/resources": "3.0.0",
     "@opentelemetry/sdk-node": "0.221.0",
     "@opentelemetry/semantic-conventions": "1.43.0",
     "express": "5.2.1",
